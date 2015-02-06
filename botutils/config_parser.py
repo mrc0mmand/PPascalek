@@ -62,3 +62,17 @@ class ConfigParser(object):
 		else:
 			return server['channels']
 
+	def get_channel_name(self, channel):
+		return channel['name']
+
+	def get_channel_password(self, channel):
+		if 'pass' not in channel:
+			return ''
+		else:
+			return channel['pass']
+
+	def get_channel_cmdprefix(self, channel):
+		if 'cmdprefix' not in channel:
+			return '?'
+		else:
+			return channel['cmdprefix']
