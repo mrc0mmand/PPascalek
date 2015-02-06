@@ -14,7 +14,6 @@ class ConfigParser(object):
 			self._content = json.load(self._f)
 			self._f.close()
 			self._basic_config_check()
-			print(self._content)
 		except (IOError, OSError) as e:
 			print("[ConfigParser]", e, file=sys.stderr)
 			raise
@@ -29,10 +28,10 @@ class ConfigParser(object):
 		for server in self._content['servers']:
 			if 'nickname' not in server:
 				raise ValueError('Missing \'nickname\' attribute in \'servers\' section.')
-			if 'name' not in server:
-				raise ValueError('Missing \'name\' attribute in \'servers\' section.')
 			if 'address' not in server:
 				raise ValueError('Missing \'address\' attribute in \'servers\' section.')
+			if 'cmdprefix' not in server:
+				raise ValueError('Missing \'cmdprefix\' attribute in \'servers\' section.')
 			if 'channels' in server:
 				for channel in server['channels']:
 					if 'name' not in channel:
@@ -44,9 +43,6 @@ class ConfigParser(object):
 	def get_server_nickname(self, server):
 		return server['nickname']
 
-	def get_server_name(self, server):
-		return server['name']
-
 	def get_server_address(self, server):
 		return server['address']
 
@@ -55,6 +51,9 @@ class ConfigParser(object):
 			return 6667
 		else:
 			return server['port']
+
+	def get_server_cmdprefix(self, server):
+		return server['cmdprefix']
 
 	def get_server_channels(self, server):
 		if 'channels' not in server:
@@ -71,8 +70,8 @@ class ConfigParser(object):
 		else:
 			return channel['pass']
 
-	def get_channel_cmdprefix(self, channel):
+	def get_channel_cmdprefix(self, channel, default=''):
 		if 'cmdprefix' not in channel:
-			return '?'
+			return default
 		else:
 			return channel['cmdprefix']

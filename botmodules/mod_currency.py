@@ -7,7 +7,9 @@ class Currency(module_base.ModuleBase):
 
 	def __init__(self):
 		self._commands = [ "curr", "currency", "currency-list", "curr-list"]
-		# TODO: Channel-wide module prefix
 
-	def on_privmsg(self, connection, event):
-		pass
+	def on_command(self, connection, event):
+		print("[Currency] Event object:", event)
+		for command in self._commands:
+			if event.arguments[0].startswith(command + ' '):
+				print("[mod_Currency] It works!")

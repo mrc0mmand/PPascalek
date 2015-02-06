@@ -35,6 +35,10 @@ class ModuleHandler(object):
 	def handle_nick(self, connection, event):
 		for module in self._loaded_modules:
 			self._loaded_modules[module].on_nick(connection, event)
+
+	def handle_command(self, connection, event):
+		for module in self._loaded_modules:
+			self._loaded_modules[module].on_command(connection, event)
 	
 	def _get_class_name(self, mod_name):
 		class_name = ''
@@ -77,7 +81,7 @@ class ModuleHandler(object):
 	def reload_module(self, mod_name):
 		print("Reloading module ", mod_name)
 		self._modules_list = pkgutil.iter_modules(path=[self._modules_path])
-		
+
 		# Check if given module is loaded
 		if mod_name in self._loaded_modules:
 			del(self._loaded_modules[mod_name])
