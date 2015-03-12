@@ -4,5 +4,5 @@
 from botcore import bot
 
 if __name__ == '__main__':
-	b = bot.Bot("config.json")
-	b.start()	
+    b = bot.Bot("config.json")
+    b.start()    
