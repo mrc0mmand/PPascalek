@@ -1,6 +1,12 @@
+# Custom config
 config.json
-__pycache__
-*.pyc
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Other
 *.orig
 *.rej
 *.bak
+*.log
