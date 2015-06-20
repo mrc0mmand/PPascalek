@@ -33,7 +33,7 @@ class Bot(object):
             print(e)
             # This should not exit the bot in the future but
             # ensure some kind of reconnect
-            raise sys.exit(1)
+            self._server_list[address]['@@s'].reconnect()
 
         self._server_list[address]['@@s_cmdprefix'] = scmdprefix
 
@@ -43,6 +43,7 @@ class Bot(object):
     def _on_disconnect(self, connection, event):
         # This should ensure some kind of reconnect as well (in the future, of course)
         print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
+        self.connection.reconnect()
 
     def _on_privmsg(self, connection, event):
         print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
