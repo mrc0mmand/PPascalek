@@ -30,9 +30,11 @@ class Bot(object):
 
         try:
             self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
-        except irc.client.ServerConnectionError:
-            print(sys.exc_info()[1])
-            raise SystemExit(1)
+        except irc.client.ServerConnectionError as e:
+            print(e)
+            # This should not exit the bot in the future but
+            # ensure some kind of reconnect
+            raise sys.exit(1)
 
         self._server_list[address]['@@s_cmdprefix'] = scmdprefix
 
@@ -40,6 +42,7 @@ class Bot(object):
         print('[{}] Connected to {}' .format(event.type.upper(), event.source))
 
     def _on_disconnect(self, connection, event):
+        # This should ensure some kind of reconnect as well (in the future, of course)
         print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
 
     def _on_privmsg(self, connection, event):
