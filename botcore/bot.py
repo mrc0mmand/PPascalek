@@ -13,6 +13,7 @@ class Bot(object):
         self._configfile = configfile
         self._client = client.Reactor()
         # Events: https://bitbucket.org/jaraco/irc/src/9e4fb0ce922398292ed4c0cfd3822e4fe19a940d/irc/events.py?at=default#cl-177
+        self._client.add_global_handler('welcome', self._on_connect)  
         self._client.add_global_handler('pubmsg', self._on_privmsg)
         self._client.add_global_handler('privmsg', self._on_privmsg)
         self._client.add_global_handler('join', self._on_join)
@@ -67,6 +68,9 @@ class Bot(object):
                 self._module_handler.handle_command(connection, event, False)
 
             self._module_handler.handle_privmsg(connection, event)
+
+    def _on_connect(self, connection, event):
+        print('[{}] Connected to {}' .format(event.type.upper(), event.source))
 
     def _on_pubmsg(self, connection, event):
         print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
