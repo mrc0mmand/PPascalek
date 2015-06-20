@@ -9,8 +9,6 @@ class Urban(module_base.ModuleBase):
 
     def __init__(self):
         self._commands = [ 'urban', 'urbandictionary', 'urbandict' ]
-        self._currency_data = dict()
-        
 
     def _getUrbanDef(self, word):
         try:
