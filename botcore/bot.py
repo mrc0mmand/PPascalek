@@ -13,6 +13,8 @@ class Bot(object):
         self._configfile = configfile
         self._client = client.Reactor()
         # Events: https://bitbucket.org/jaraco/irc/src/9e4fb0ce922398292ed4c0cfd3822e4fe19a940d/irc/events.py?at=default#cl-177
+        self._client.add_global_handler('welcome', self._on_connect)  
+        self._client.add_global_handler('disconnect', self._on_disconnect)  
         self._client.add_global_handler('pubmsg', self._on_privmsg)
         self._client.add_global_handler('privmsg', self._on_privmsg)
         self._client.add_global_handler('join', self._on_join)
@@ -25,16 +27,29 @@ class Bot(object):
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
         self._server_list[address]['@@s'] = self._client.server()
-        self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
+
+        try:
+            self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
+        except irc.client.ServerConnectionError:
+            print(sys.exc_info()[1])
+            raise SystemExit(1)
+
         self._server_list[address]['@@s_cmdprefix'] = scmdprefix
 
+    def _on_connect(self, connection, event):
+        print('[{}] Connected to {}' .format(event.type.upper(), event.source))
+
+    def _on_disconnect(self, connection, event):
+        print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
+
     def _on_privmsg(self, connection, event):
-        print('_on_privmsg: Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
+        print('[{}] {}: <{}> {}\n' .format(event.type.upper(), event.target, 
+                                           event.source.split('!', 1)[0], event.arguments[0]))
         # Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
             pass
         
-        print("[Bot] Event object:", event)
+        #print("[Bot] Event object:", event)
         # Event target - channel or nickname (converted to lowercase)
         target = event.target.lower()
         # Address of the irc server
@@ -68,23 +83,23 @@ class Bot(object):
             self._module_handler.handle_privmsg(connection, event)
 
     def _on_pubmsg(self, connection, event):
-        print('_on_pubmsg: Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
-        # Ignore our own messages
+        print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
+                                         event.source.split('!', 1)[0], event.arguments[0]))# Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
             pass
 
         self._module_handler.handle_pubmsg(connection, event)
 
     def _on_join(self, connection, event):
-        print('Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
+        print('[{}] {} has joined {}' .format(event.type.upper(), event.source, event.target))
         self._module_handler.handle_join(connection, event)
 
     def _on_quit(self, connection, event):
-        print('Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
+        print('[{}] {} has quit {}' .format(event.type.upper(), event.source, event.target))
         self._module_handler.handle_quit(connection, event)
 
     def _on_nick(self, connection, event):
-        print('Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
+        print('[{}] {} is now known as {}' .format(event.type.upper(), event.source.split('!', 1)[0], event.target))
         self._module_handler.handle_nick(connection, event)
 
     def join_channel(self, serveraddr, channel, password):
@@ -113,7 +128,7 @@ class Bot(object):
                 self._server_list[serveraddr][chname] = channel.Channel(serveraddr, chname, chpass, cmdprefix)
                 self.join_channel(serveraddr, chname, chpass)
 
-        print(self._server_list)
+        #print(self._server_list)
 
     def start(self):
         print('Starting bot instance...')
