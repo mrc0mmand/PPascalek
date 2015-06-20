@@ -114,7 +114,7 @@ class Bot(object):
                 self._server_list[serveraddr][chname] = channel.Channel(serveraddr, chname, chpass, cmdprefix)
                 self.join_channel(serveraddr, chname, chpass)
 
-        print(self._server_list)
+        #print(self._server_list)
 
     def start(self):
         print('Starting bot instance...')
