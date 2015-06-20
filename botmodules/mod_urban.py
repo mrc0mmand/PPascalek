@@ -13,7 +13,6 @@ class Urban(module_base.ModuleBase):
         
 
     def _getUrbanDef(self, word):
-        print("[Urban] Word: {0}".format(word))
         try:
             req = urllib.request.urlopen("http://urbanscraper.herokuapp.com/define/{0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
         except URLError as e:
@@ -24,9 +23,6 @@ class Urban(module_base.ModuleBase):
 
         parsed = json.loads(req.read().decode("utf-8"))  # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
         
-        """if("message" in parsed and parsed["message"].contains("No definitions")): # nedostali jsme místo definice error?
-            return "[Urban] {0}".parsed["message"]""" # never mind, tohle se asi nikdy nevykoná, protože ta api vrací 404 a to urllib bere jako exception
-
         return "[{0}]: {1}".format(parsed["term"], parsed["definition"]) if len(parsed["definition"]) < 150 else "[{0}]: {1}… (more at {2})".format(parsed["term"], parsed["definition"][:-150], "http://urbandictionary.com/define.php?term={0}".format(urllib.request.quote(word))) #url je rozbitý; url hardcoded, protože momentálně to stejně bere jen top definici, takže nepotřebuju přesný id
 
     def on_command(self, connection, event, isPublic):
