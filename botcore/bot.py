@@ -29,12 +29,13 @@ class Bot(object):
         self._server_list[address]['@@s_cmdprefix'] = scmdprefix
 
     def _on_privmsg(self, connection, event):
-        print('_on_privmsg: Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
+        print('[{}] {}: <{}> {}\n' .format(event.type.upper(), event.target, 
+                                           event.source.split('!', 1)[0], event.arguments[0]))
         # Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
             pass
         
-        print("[Bot] Event object:", event)
+        #print("[Bot] Event object:", event)
         # Event target - channel or nickname (converted to lowercase)
         target = event.target.lower()
         # Address of the irc server
@@ -68,23 +69,23 @@ class Bot(object):
             self._module_handler.handle_privmsg(connection, event)
 
     def _on_pubmsg(self, connection, event):
-        print('_on_pubmsg: Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
-        # Ignore our own messages
+        print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
+                                         event.source.split('!', 1)[0], event.arguments[0]))# Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
             pass
 
         self._module_handler.handle_pubmsg(connection, event)
 
     def _on_join(self, connection, event):
-        print('Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
+        print('[{}] {} has joined {}' .format(event.type.upper(), event.source, event.target))
         self._module_handler.handle_join(connection, event)
 
     def _on_quit(self, connection, event):
-        print('Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
+        print('[{}] {} has quit {}' .format(event.type.upper(), event.source, event.target))
         self._module_handler.handle_quit(connection, event)
 
     def _on_nick(self, connection, event):
-        print('Type: {}\nSource: {}\nTarget: {}\nArgs: {}\n'.format(event.type, event.source, event.target, event.arguments))
+        print('[{}] {} is now known as {}' .format(event.type.upper(), event.source.split('!', 1)[0], event.target))
         self._module_handler.handle_nick(connection, event)
 
     def join_channel(self, serveraddr, channel, password):
