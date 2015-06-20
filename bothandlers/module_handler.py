@@ -60,7 +60,7 @@ class ModuleHandler(object):
             if not mod_name.startswith("mod_"):
                 return
 
-            print("[ModuleHandler] Loading module '{}' [{}]".format(mod_name, self._modules_path + '.' + mod_name))
+            print('[ModuleHandler] Loading module \'{}\' [{}]' .format(mod_name, self._modules_path + '.' + mod_name))
             # Import it
             loaded_mod = __import__(self._modules_path + '.' + mod_name, fromlist=[mod_name])
 
@@ -71,16 +71,16 @@ class ModuleHandler(object):
             # Create an instance of the class
             self._loaded_modules[mod_name] = loaded_class()
             #self._loaded_modules[mod_name].run()
-            print("[ModuleHandler] Loaded module '{}'".format(mod_name))
+            print('[ModuleHandler] Loaded module \'{}\'' .format(mod_name))
 
     def _load_all_modules(self):
-        print("Loading modules...")
+        print('Loading modules...')
         
         for loader, mod_name, ispkg in self._modules_list:
             self.load_module(mod_name)
 
     def reload_module(self, mod_name):
-        print("Reloading module ", mod_name)
+        print('Reloading module ', mod_name)
         self._modules_list = pkgutil.iter_modules(path=[self._modules_path])
 
         # Check if given module is loaded
@@ -95,4 +95,4 @@ class ModuleHandler(object):
             reloaded_class = getattr(reloaded_mod, class_name)
             # Create class instance
             self._loaded_modules[mod_name] = reloaded_class()
-            print("Module {} reloaded ".format(mod_name))
+            print('Module {} reloaded ' .format(mod_name))

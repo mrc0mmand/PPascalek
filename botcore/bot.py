@@ -27,6 +27,7 @@ class Bot(object):
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
         self._server_list[address]['@@s'] = self._client.server()
+        
         try:
             self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
         except irc.client.ServerConnectionError as e:
@@ -47,7 +48,7 @@ class Bot(object):
 
     def _on_privmsg(self, connection, event):
         print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
-                                           event.source.split('!', 1)[0], event.arguments[0]))
+                                         event.source.split('!', 1)[0], event.arguments[0]))
         # Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
             pass
