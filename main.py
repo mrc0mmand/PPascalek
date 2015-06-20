@@ -2,7 +2,18 @@
 # -*- coding: utf-8 -*-
 
 from botcore import bot
+import argparse 
 
 if __name__ == '__main__':
-    b = bot.Bot("config.json")
+    configFile = 'config.json'
+    # Let's parse some arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', help='name of the config file')
+
+    args = parser.parse_args()
+
+    if args.config:
+        configFile = args.config 
+
+    b = bot.Bot(configFile)
     b.start()    
