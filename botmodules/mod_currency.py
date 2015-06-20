@@ -11,8 +11,8 @@ class Currency(module_base.ModuleBase):
     def __init__(self):
         self._commands = [ 'curr', 'currency', 'currency-list', 'curr-list']
         self._currency_data = dict()
+        self._regex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
         self._getCurrCNB()
-
 
     def _getCurrCNB(self):
         try:
@@ -20,11 +20,9 @@ class Currency(module_base.ModuleBase):
         except Exception as e:
             print('[Currency] Couldn\'t fetch currency rates for CNB.', file=sys.stderr)
             return
-
-        regex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
-
+        
         for line in req:
-            m = re.search(regex, str(line))
+            m = re.search(self._regex, str(line))
             if m:
                 print(m.groups())
                 self._currency_data[m.group(2)] = dict(amount=int(m.group(1)), rate=float(m.group(3).replace(',', '.')))
@@ -52,7 +50,6 @@ class Currency(module_base.ModuleBase):
     def on_command(self, connection, event, isPublic):
         print('[Currency] Event object:', event)
 
-        regex = re.compile('^[a-zA-Z\-] [0-9,. ]+ [a-zA-Z]{3} [a-zA-Z]{3}')
         for command in self._commands:
             if event.arguments[0].startswith(command + ' '):
                 
