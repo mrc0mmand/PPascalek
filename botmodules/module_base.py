@@ -8,6 +8,9 @@ class ModuleBase(metaclass=ABCMeta):
     def __init__(self):
         pass
 
+    def get_commands(self):
+        pass
+        
     def on_privmsg(self, connection, event):
         pass
 

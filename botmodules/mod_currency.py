@@ -9,10 +9,12 @@ import re
 class Currency(module_base.ModuleBase):
 
     def __init__(self):
-        self._commands = [ 'curr', 'currency', 'currency-list', 'curr-list']
         self._currency_data = dict()
         self._regex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
         self._getCurrCNB()
+
+    def get_commands(self):
+        return [ 'curr', 'currency', 'currency-list', 'curr-list']
 
     def _getCurrCNB(self):
         try:
@@ -50,10 +52,7 @@ class Currency(module_base.ModuleBase):
     def on_command(self, connection, event, isPublic):
         print('[Currency] Event object:', event)
 
-        for command in self._commands:
-            if event.arguments[0].startswith(command + ' '):
-                
-                if isPublic == True:
-                    connection.privmsg(event.target, self._convert('CZK', 'USD', 1))
-                else:
-                    connection.privmsg(event.source, self._convert('CZK', 'USD', 1))
+        if isPublic == True:
+            connection.privmsg(event.target, self._convert('CZK', 'USD', 1))
+        else:
+            connection.privmsg(event.source, self._convert('CZK', 'USD', 1))

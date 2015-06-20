@@ -9,6 +9,7 @@ import os
 class ModuleHandler(object):
 
     def __init__(self):
+        self._command_list = dict()
         # Define directory with modules
         self._modules_path = os.path.join(os.path.dirname(os.pardir), 'botmodules')
         # Create module list
@@ -38,9 +39,14 @@ class ModuleHandler(object):
             self._loaded_modules[module].on_nick(connection, event)
 
     def handle_command(self, connection, event, isPublic):
-        for module in self._loaded_modules:
-            self._loaded_modules[module].on_command(connection, event, isPublic)
-    
+        command = event.arguments[0].split(' ', 1)[0]
+
+        if command:
+            command.lower()
+            for cmd in self._command_list:
+                if command == cmd:
+                    self._loaded_modules[self._command_list[cmd]].on_command(connection, event, isPublic)
+
     def _get_class_name(self, mod_name):
         class_name = ''
 
@@ -52,6 +58,9 @@ class ModuleHandler(object):
             class_name = word.title()
 
         return class_name
+    def _register_commands(self, commands, module_name):
+        for c in commands:
+            self._command_list[c.lower()] = module_name
 
     def load_module(self, mod_name):
         # Check if module isn't already loaded
@@ -70,6 +79,14 @@ class ModuleHandler(object):
 
             # Create an instance of the class
             self._loaded_modules[mod_name] = loaded_class()
+
+            commands = self._loaded_modules[mod_name].get_commands()
+            
+            if commands == None:
+                print("[WARNING] Module {} didn't register any commands" .format(mod_name))
+            else:
+                self._register_commands(commands, mod_name)
+
             #self._loaded_modules[mod_name].run()
             print('[ModuleHandler] Loaded module \'{}\'' .format(mod_name))
 
