@@ -20,9 +20,9 @@ class Bot(object):
         self._client.add_global_handler('join', self._on_join)
         self._client.add_global_handler('quit', self._on_quit)
         self._client.add_global_handler('nick', self._on_nick)
-        self._module_handler = module_handler.ModuleHandler()
         self._server_list = dict()
         self._load_config()
+        self._module_handler = module_handler.ModuleHandler()
 
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
