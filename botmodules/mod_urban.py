@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from . import module_base
-#from urllib import urllib.quote as qt
 import urllib.request, sys, re, json
-from urllib.error import URLError as urlerr
+from urllib.error import URLError
 
 class Urban(module_base.ModuleBase):
 
@@ -17,7 +16,7 @@ class Urban(module_base.ModuleBase):
         print("[Urban] Word: {0}".format(word))
         try:
             req = urllib.request.urlopen("http://urbanscraper.herokuapp.com/define/{0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
-        except urlerr as e:
+        except URLError as e:
             return "[Urban] Definition could not be found." 
         except Exception as e:
             print('[Urban] Error sending request to urbanscrapper. Reason: {0}'.format(str(e)), file=sys.stderr)
