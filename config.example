@@ -1,0 +1,23 @@
+{
+    "servers": [
+        {
+            "nickname" : "yournick",
+            "address" : "irc.domain.tld",
+            "port" : 6667,
+            "cmdprefix" : "?",
+
+            "channels" : [
+                { 
+                    "name" : "#channel1",
+                    "pass" : "",
+                    "cmdprefix" : "!"
+                },
+                {
+                    "name" : "#channel2",
+                    "pass" : "secret",
+                    "cmdprefix" : "`"
+                }
+            ]
+        }
+    ]
+}
