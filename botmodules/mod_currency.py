@@ -49,12 +49,6 @@ class Currency(module_base.ModuleBase):
 
         return res
 
-    def _send_msg(self, connection, event, isPublic, message):
-        if isPublic == True:
-            connection.privmsg(event.target, message)
-        else:
-            connection.privmsg(event.source, message)
-
     def on_command(self, command, connection, event, isPublic):
         if command == 'curr' or command == 'currency': 
             m = re.search(self._argsRegex, event.arguments[0])
@@ -62,13 +56,13 @@ class Currency(module_base.ModuleBase):
             if m:
                 converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), float(m.group(1))), 2)
 
-                self._send_msg(connection, event, isPublic, '{} {} = {} {}' .format(round(float(m.group(1)), 2), 
+                self.send_msg(connection, event, isPublic, '{} {} = {} {}' .format(round(float(m.group(1)), 2), 
                                m.group(2).upper(), converted, m.group(4).upper()))
             else:
-                self._send_msg(connection, event, isPublic, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
+                self.send_msg(connection, event, isPublic, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
                                'available currencies]' .format(event.arguments[1], command))
 
         elif command == 'curr-list' or command == 'currency-list':
             curr_list = ', '.join('{!s}'.format(key) for (key,val) in self._currency_data.items())
-            self._send_msg(connection, event, isPublic, curr_list)
+            self.send_msg(connection, event, isPublic, curr_list)
    

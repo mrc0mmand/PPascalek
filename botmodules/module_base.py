@@ -11,6 +11,12 @@ class ModuleBase(metaclass=ABCMeta):
     def get_commands(self):
         pass
 
+    def send_msg(self, connection, event, isPublic, message):
+        if isPublic == True:
+            connection.privmsg(event.target, message)
+        else:
+            connection.privmsg(event.source, message)
+
     def on_privmsg(self, connection, event):
         pass
 
