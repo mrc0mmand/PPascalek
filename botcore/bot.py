@@ -58,6 +58,11 @@ class Bot(object):
 
     def _on_connect(self, connection, event):
         print('[{}] Connected to {}' .format(event.type.upper(), event.source))
+        for server in self._server_list:
+            for channel in self._server_list[server]:
+                if not channel.startswith('@'):
+                    print('[INFO] Joining {}@{}' .format(channel, server))
+                    self.join_channel(server, channel, self._server_list[server][channel].get_pass())
 
     def _on_disconnect(self, connection, event):
         print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
@@ -178,7 +183,6 @@ class Bot(object):
                 chpass = self._cp.get_channel_password(chan)
                 cmdprefix = self._cp.get_channel_cmdprefix(chan, scmdprefix)
                 self._server_list[serveraddr][chname] = channel.Channel(serveraddr, chname, chpass, cmdprefix)
-                self.join_channel(serveraddr, chname, chpass)
 
     def start(self):
         print('Starting bot instance...')
