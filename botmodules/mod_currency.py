@@ -15,7 +15,7 @@ class Currency(module_base.ModuleBase):
 
     def __init__(self):
         self._currency_data = dict()
-        self._argsRegex = re.compile('[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+([a-zA-Z]{3}).*')
+        self._argsRegex = re.compile('[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+(in|to)*[ ]*([a-zA-Z]{3}).*')
         self._CNBRegex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
         self._getCurrCNB()
 
@@ -64,10 +64,14 @@ class Currency(module_base.ModuleBase):
             m = re.search(self._argsRegex, event.arguments[0])
 
             if m:
+                converted = self._convert(m.group(2).upper(), m.group(4).upper(), int(m.group(1)))
+
                 if isPublic == True:
-                    connection.privmsg(event.target, self._convert(m.group(2).upper(), m.group(3).upper(), int(m.group(1))))
+                    connection.privmsg(event.target, "{} {} = {} {}" .format(m.group(1), m.group(2).upper(), 
+                                    converted, m.group(4).upper()))
                 else:
-                    connection.privmsg(event.source, self._convert(m.group(2).upper(), m.group(3).upper(), int(m.group(1))))
+                    connection.privmsg(event.source, "{} {} = {} {}" .format(m.group(1), m.group(2).upper(), 
+                                    converted, m.group(4).upper()))
             else:
                 # Again some help
                 pass
