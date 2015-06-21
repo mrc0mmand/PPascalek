@@ -15,12 +15,6 @@ class ModuleBase(metaclass=ABCMeta):
     def send_msg(self, connection, event, isPublic, message):
         destination = event.target if isPublic != False else event.source
 
-        """chtěl jsem udělat globální zkracování zpráv, který se posílaj, kdyby to náhodou nezachytil danej modul
-        unicode mě totálně zprcal do zadku a ani už nevim, co je dobře a co ne
-        tak si to tu kdyžtak přeber a nebo taky nepřeber, hlavně šlo o to, že doteď ten program padal, protože
-        se nechytala výjimka toho, že posíláš víc jak >512 bajtů, ať už ty zprávy chceš tady zkracovat, nebo ne, tak tu
-        prostě a jednoduše chyběla aspoň ta výjimka"""
-
         msg_len = len(message.encode('utf-8'))
 
         if msg_len >= 512:

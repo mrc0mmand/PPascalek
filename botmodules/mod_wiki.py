@@ -19,7 +19,7 @@ class Wiki(module_base.ModuleBase):
         try:
             req = urllib.request.urlopen("https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search={0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
         except URLError as e:
-            return "[EnWiki] Definition could not be found." 
+            return "[EnWiki] Nothing found." 
         except Exception as e:
             print('[EnWiki] Error sending request to wikipedia\'s API. Reason: {0}'.format(str(e)), file=sys.stderr)
             return "[EnWiki] Unknown error."

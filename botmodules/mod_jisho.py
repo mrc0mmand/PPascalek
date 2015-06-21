@@ -15,6 +15,7 @@ class Jisho(module_base.ModuleBase):
     def get_commands(self):
         return [ 'jisho', 'jword', 'jw', "jsearch", "jishosearch" ]
 
+    # todo: přepsat
     def _memesDesu(self, parsed, index):
         memes = []
         eng = []
@@ -70,5 +71,4 @@ class Jisho(module_base.ModuleBase):
         print('[JishoSearch] Arguments object:', event.arguments)
 
         args = event.arguments[0] 
-        #to_where = event.target if isPublic == True else event.source
         self.send_msg(connection, event, isPublic, self._getJishoSearch(args))
