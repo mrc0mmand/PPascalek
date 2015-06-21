@@ -17,7 +17,7 @@ class Currency(module_base.ModuleBase):
     def __init__(self):
         self._last_update = time.time()
         self._currency_data = dict()
-        self._argsRegex = re.compile('[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+(in|to)*[ ]*([a-zA-Z]{3}).*')
+        self._argsRegex = re.compile('^[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+(in|to)*[ ]*([a-zA-Z]{3}).*$')
         self._CNB_regex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
         self._do_update()
 
@@ -71,9 +71,10 @@ class Currency(module_base.ModuleBase):
             m = re.search(self._argsRegex, event.arguments[0])
 
             if m:
-                converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), float(m.group(1))), 2)
+                source = float(m.group(1).replace(',', '.'))
+                converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), source), 2)
 
-                self.send_msg(connection, event, isPublic, '{} {} = {} {}' .format(round(float(m.group(1)), 2), 
+                self.send_msg(connection, event, isPublic, '{} {} = {} {}' .format(round(source, 2), 
                                m.group(2).upper(), converted, m.group(4).upper()))
             else:
                 self.send_msg(connection, event, isPublic, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
