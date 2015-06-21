@@ -24,8 +24,7 @@ class Bot(object):
         self._load_config()
         self._module_handler = module_handler.ModuleHandler()
 
-
-    def umri(self, signal, func=None):
+    def handle_signal(self, signal, func=None):
         if(signal == 15):
             s = "SIGTERM"
         elif(signal == 2):
@@ -33,7 +32,9 @@ class Bot(object):
         else:
             s = "Unknown"
         for i in self._server_list:
-            self._server_list[i]["@@s"].disconnect(s) # .quit(s) to shodi na interrupted system call, ale disconnect funguje zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
+            # .quit(s) to shodi na interrupted system call, ale disconnect funguje 
+            # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
+            self._server_list[i]["@@s"].disconnect(s)
 
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
