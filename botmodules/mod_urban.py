@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""Returns urbandictionary definition for user's string"""
 
 from . import module_base
 import urllib.request, sys, re, json

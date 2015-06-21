@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+""" Performs a search on the online dictionary jisho.org """
+
 
 from . import module_base
 import urllib.request, sys, re, json
