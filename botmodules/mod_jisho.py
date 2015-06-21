@@ -24,7 +24,6 @@ class Jisho(module_base.ModuleBase):
 
         parsed = json.loads(req.read().decode("utf-8"))  # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
         
-        # CANCER BEGINS #
         memes = []
         eng = []
         # todo: celý přepsat #
@@ -53,8 +52,7 @@ class Jisho(module_base.ModuleBase):
         print('[JishoSearch] Event object:', event)
         print('[JishoSearch] Arguments object:', event.arguments)
 
-        args = event.arguments[0] # FYI: kdybych zapomnel: krva proč je to arguments pole, když je v něm stjeně jen jeden PRVEK ŠUMŠÁKLE
-        
+        args = event.arguments[0] 
         if isPublic == True:
             connection.privmsg(event.target, self._getJishoSearch(args))
         else:

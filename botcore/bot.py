@@ -33,7 +33,7 @@ class Bot(object):
         else:
             s = "Unknown"
         for i in self._server_list:
-            self._server_list[i]["@@s"].disconnect(s)
+            self._server_list[i]["@@s"].disconnect(s) # .quit(s) to shodi na interrupted system call, ale disconnect funguje zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
 
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
@@ -56,7 +56,8 @@ class Bot(object):
         # This should ensure some kind of reconnect as well (in the future, of course)
         print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
         #self.connection.reconnect()
-        
+        sys.exit(0)
+
 
     def _on_privmsg(self, connection, event):
         print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
