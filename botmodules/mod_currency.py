@@ -20,7 +20,7 @@ class Currency(module_base.ModuleBase):
         self._getCurrCNB()
 
     def get_commands(self):
-        return [ 'curr', 'currency', 'currency-list', 'curr-list']
+        return ['curr', 'currency', 'currency-list', 'curr-list']
 
     def _getCurrCNB(self):
         try:
@@ -48,23 +48,26 @@ class Currency(module_base.ModuleBase):
 
         return res
 
+    def _send_msg(self, connection, event, isPublic, message):
+        if isPublic == True:
+            connection.privmsg(event.target, message)
+        else:
+            connection.privmsg(event.source, message)
 
     def on_command(self, command, connection, event, isPublic):
-        if event.arguments[0]:
+        if command == 'curr' or command == 'currency': 
             m = re.search(self._argsRegex, event.arguments[0])
 
             if m:
-                converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), int(m.group(1))), 2)
+                converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), float(m.group(1))), 2)
 
-                if isPublic == True:
-                    connection.privmsg(event.target, "{} {} = {} {}" .format(m.group(1), m.group(2).upper(), 
-                                    converted, m.group(4).upper()))
-                else:
-                    connection.privmsg(event.source, "{} {} = {} {}" .format(m.group(1), m.group(2).upper(), 
-                                    converted, m.group(4).upper()))
+                self._send_msg(connection, event, isPublic, '{} {} = {} {}' .format(round(float(m.group(1)), 2), 
+                               m.group(2).upper(), converted, m.group(4).upper()))
             else:
-                # Again some help
-                pass
-        else:
-            # There should be some help
-            pass
+                self._send_msg(connection, event, isPublic, 'Usage: {} xx.x CUR (in|to) CUR [type {}-list for available currencies]'
+                               .format(command, command))
+
+        elif command == 'curr-list' or command == 'currency-list':
+            curr_list = ', '.join('{!s}'.format(key) for (key,val) in self._currency_data.items())
+            self._send_msg(connection, event, isPublic, curr_list)
+   
