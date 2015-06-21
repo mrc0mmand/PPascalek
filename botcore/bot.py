@@ -189,4 +189,7 @@ class Bot(object):
 
     def start(self):
         print('Starting bot instance...')
-        self._client.process_forever()
+        
+        while(True):
+            self._client.process_once(0.2)
+        
