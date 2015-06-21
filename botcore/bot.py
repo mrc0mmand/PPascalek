@@ -67,7 +67,6 @@ class Bot(object):
         if event.source.lower() == connection.get_nickname().lower():
             pass
         
-        #print("[Bot] Event object:", event)
         # Event target - channel or nickname (converted to lowercase)
         target = event.target.lower()
         # Address of the irc server
@@ -108,7 +107,8 @@ class Bot(object):
 
     def _on_pubmsg(self, connection, event):
         print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
-                                         event.source.split('!', 1)[0], event.arguments[0]))# Ignore our own messages
+                                         event.source.split('!', 1)[0], event.arguments[0]))
+        # Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
             pass
 
@@ -159,8 +159,6 @@ class Bot(object):
                 cmdprefix = self._cp.get_channel_cmdprefix(chan, scmdprefix)
                 self._server_list[serveraddr][chname] = channel.Channel(serveraddr, chname, chpass, cmdprefix)
                 self.join_channel(serveraddr, chname, chpass)
-
-        #print(self._server_list)
 
     def start(self):
         print('Starting bot instance...')

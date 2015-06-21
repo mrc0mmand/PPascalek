@@ -90,7 +90,6 @@ class ModuleHandler(object):
             else:
                 self._register_commands(commands, mod_name)
 
-            #self._loaded_modules[mod_name].run()
             print('[ModuleHandler] Loaded module \'{}\'' .format(mod_name))
 
     def _load_all_modules(self):
