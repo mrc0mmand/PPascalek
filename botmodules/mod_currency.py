@@ -74,7 +74,7 @@ class Currency(module_base.ModuleBase):
                 source = float(m.group(1).replace(',', '.'))
                 converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), source), 2)
 
-                self.send_msg(connection, event, isPublic, '{} {} = {} {}' .format(round(source, 2), 
+                self.send_msg(connection, event, isPublic, '{:,.2f} {} = {:,.2f} {}' .format(round(source, 2), 
                                m.group(2).upper(), converted, m.group(4).upper()))
             else:
                 self.send_msg(connection, event, isPublic, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
