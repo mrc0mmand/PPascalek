@@ -85,7 +85,7 @@ class ModuleHandler(object):
 
             commands = self._loaded_modules[mod_name].get_commands()
             
-            if commands == None:
+            if commands is None:
                 print("[WARNING] Module {} didn't register any commands" .format(mod_name))
             else:
                 self._register_commands(commands, mod_name)
