@@ -64,8 +64,10 @@ class Currency(module_base.ModuleBase):
             m = re.search(self._argsRegex, event.arguments[0])
 
             if m:
-                to_where = event.target if isPublic == True else event.source
-                connection.privmsg(to_where, self._convert(m.group(2).upper(), m.group(3).upper(), int(m.group(1))))
+                if isPublic == True:
+                    connection.privmsg(event.target, self._convert(m.group(2).upper(), m.group(3).upper(), int(m.group(1))))
+                else:
+                    connection.privmsg(event.source, self._convert(m.group(2).upper(), m.group(3).upper(), int(m.group(1))))
             else:
                 # Again some help
                 pass
