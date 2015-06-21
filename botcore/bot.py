@@ -24,7 +24,7 @@ class Bot(object):
         self._load_config()
         self._module_handler = module_handler.ModuleHandler()
 
-    def handle_signal(self, signal, func=None):
+    def handle_signals(self, signal, func=None):
         if(signal == 15):
             s = "SIGTERM"
         elif(signal == 2):
