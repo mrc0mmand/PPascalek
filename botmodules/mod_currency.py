@@ -32,13 +32,7 @@ class Currency(module_base.ModuleBase):
         for line in req:
             m = re.search(self._CNBRegex, str(line))
             if m:
-                #print(m.groups())
                 self._currency_data[m.group(2)] = dict(amount=int(m.group(1)), rate=float(m.group(3).replace(',', '.')))
-            else:
-                print('Nope.')
-
-        print(self._currency_data)
-        print(self._currency_data['USD'].get('amount'))
 
     def _convert(self, code_from, code_to, amount_from):
         res = 0
@@ -56,15 +50,11 @@ class Currency(module_base.ModuleBase):
 
 
     def on_command(self, command, connection, event, isPublic):
-        print('[Currency] Event object:', event)
-
-        print("Command: {}\nArgument: {}" .format(command, event.arguments[0]))
-
         if event.arguments[0]:
             m = re.search(self._argsRegex, event.arguments[0])
 
             if m:
-                converted = self._convert(m.group(2).upper(), m.group(4).upper(), int(m.group(1)))
+                converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), int(m.group(1))), 2)
 
                 if isPublic == True:
                     connection.privmsg(event.target, "{} {} = {} {}" .format(m.group(1), m.group(2).upper(), 
