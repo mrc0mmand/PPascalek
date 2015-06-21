@@ -24,18 +24,29 @@ class Bot(object):
         self._load_config()
         self._module_handler = module_handler.ModuleHandler()
 
+
+    def umri(self, signal, func=None):
+        if(signal == 15):
+            s = "SIGTERM"
+        elif(signal == 2):
+            s = "SIGINT"
+        else:
+            s = "Unknown"
+        for i in self._server_list:
+            self._server_list[i]["@@s"].disconnect(s)
+
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
         self._server_list[address]['@@s'] = self._client.server()
 
         try:
             self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
-        except irc.client.ServerConnectionError as e:
+        except irc.client.ServerConnectionError as e: 
             print(e)
             # This should not exit the bot in the future but
             # ensure some kind of reconnect
             self._server_list[address]['@@s'].reconnect()
-
+           
         self._server_list[address]['@@s_cmdprefix'] = scmdprefix
 
     def _on_connect(self, connection, event):
@@ -44,7 +55,8 @@ class Bot(object):
     def _on_disconnect(self, connection, event):
         # This should ensure some kind of reconnect as well (in the future, of course)
         print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
-        self.connection.reconnect()
+        #self.connection.reconnect()
+        
 
     def _on_privmsg(self, connection, event):
         print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 

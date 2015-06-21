@@ -3,8 +3,14 @@
 
 from botcore import bot
 import argparse 
+import signal
+
+# TODO: lepší umístění handlení signálů, hlavně asi potom, co přijde podpora konzole
 
 if __name__ == '__main__':
+    
+
+
     configFile = 'config.json'
     # Let's parse some arguments
     parser = argparse.ArgumentParser()
@@ -16,4 +22,6 @@ if __name__ == '__main__':
         configFile = args.config 
 
     b = bot.Bot(configFile)
+    signal.signal(signal.SIGTERM, b.umri)
+    signal.signal(signal.SIGINT, b.umri)	
     b.start()    
