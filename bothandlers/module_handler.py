@@ -39,13 +39,15 @@ class ModuleHandler(object):
             self._loaded_modules[module].on_nick(connection, event)
 
     def handle_command(self, connection, event, isPublic):
-        command = event.arguments[0].split(' ', 1)[0]
+        # Get first word from the argument string, save it and strip it
+        command = event.arguments[0].partition(' ')[0]
+        event.arguments[0] = event.arguments[0].partition(' ')[1]
 
         if command:
             command.lower()
             for cmd in self._command_list:
                 if command == cmd:
-                    self._loaded_modules[self._command_list[cmd]].on_command(connection, event, isPublic)
+                    self._loaded_modules[self._command_list[cmd]].on_command(cmd, connection, event, isPublic)
 
     def _get_class_name(self, mod_name):
         class_name = ''
@@ -58,6 +60,7 @@ class ModuleHandler(object):
             class_name = word.title()
 
         return class_name
+
     def _register_commands(self, commands, module_name):
         for c in commands:
             self._command_list[c.lower()] = module_name

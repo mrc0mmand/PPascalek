@@ -49,9 +49,11 @@ class Currency(module_base.ModuleBase):
         return res
 
 
-    def on_command(self, connection, event, isPublic):
+    def on_command(self, command, connection, event, isPublic):
         print('[Currency] Event object:', event)
 
+        print("Command: {}\nArgument: {}" .format(command, event.arguments[0]))
+        
         if isPublic == True:
             connection.privmsg(event.target, self._convert('CZK', 'USD', 1))
         else:

@@ -10,14 +10,14 @@ class ModuleBase(metaclass=ABCMeta):
 
     def get_commands(self):
         pass
-        
+
     def on_privmsg(self, connection, event):
         pass
 
     def on_pubmsg(self, connection, event):
         pass
 
-    def on_command(self, connection, event, isPublic):
+    def on_command(self, command, connection, event, isPublic):
         pass
 
     def on_join(self, connection, event):
