@@ -21,6 +21,7 @@ class Bot(object):
         self._client.add_global_handler('pubmsg', self._on_privmsg)
         self._client.add_global_handler('privmsg', self._on_privmsg)
         self._client.add_global_handler('join', self._on_join)
+        self._client.add_global_handler('part', self._on_quit)
         self._client.add_global_handler('quit', self._on_quit)
         self._client.add_global_handler('nick', self._on_nick)
         self._server_list = dict()
@@ -152,7 +153,9 @@ class Bot(object):
         self._module_handler.handle_join(connection, event)
 
     def _on_quit(self, connection, event):
-        print('[{}] {} has quit {}' .format(event.type.upper(), event.source, event.target))
+        # We don't need two separate signals for quit and part (or at least for now)
+        qtype = 'quit' if event.type == 'quit' else 'left'
+        print('[{}] {} has {} [{}]' .format(event.type.upper(), event.source, qtype, event.arguments[0]))
         self._module_handler.handle_quit(connection, event)
 
     def _on_nick(self, connection, event):
