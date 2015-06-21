@@ -23,7 +23,7 @@ class Urban(module_base.ModuleBase):
             return "[Urban] Unknown error."
 
         parsed = json.loads(req.read().decode("utf-8"))  # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
-        return "[{0}: {1}".format(parsed[index]["term"], parsed[index]["definition"]) if len(parsed[index]["definition"]) < 150 else "[{0}]: {1}… (more at {2})".format(parsed[index]["term"], parsed[index]["definition"][:-150], "http://urbandictionary.com/define.php?term={0}".format(urllib.request.quote(word))) # url je rozbitý
+        return "[{0}]: {1}".format(parsed[index]["term"], parsed[index]["definition"]) if len(parsed[index]["definition"]) < 150 else "[{0}]: {1}… (more at {2})".format(parsed[index]["term"], parsed[index]["definition"][:-150], "http://urbandictionary.com/define.php?term={0}".format(urllib.request.quote(word))) # url je rozbitý
 
     def on_command(self, command, connection, event, isPublic):
         print('[Urban] Event object:', event)
@@ -37,8 +37,8 @@ class Urban(module_base.ModuleBase):
         else:
             index = 0
             args = args
-        to_where = event.target if isPublic == True else event.source
 
+        to_where = event.target if isPublic == True else event.source
         connection.privmsg(to_where, self._getUrbanDef(args, index))
             
 
