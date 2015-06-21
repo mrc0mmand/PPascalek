@@ -8,11 +8,14 @@ from urllib.error import URLError
 class Urban(module_base.ModuleBase):
 
     def __init__(self):
-        self._commands = [ 'urban', 'urbandictionary', 'urbandict' ]
+        pass 
 
-    def _getUrbanDef(self, word):
+    def get_commands(self):
+        return [ 'urban', 'urbandictionary', 'urbandict' ]
+
+    def _getUrbanDef(self, word, index):
         try:
-            req = urllib.request.urlopen("http://urbanscraper.herokuapp.com/define/{0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
+            req = urllib.request.urlopen("http://urbanscraper.herokuapp.com/search/{0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
         except URLError as e:
             return "[Urban] Definition could not be found." 
         except Exception as e:
@@ -20,18 +23,23 @@ class Urban(module_base.ModuleBase):
             return "[Urban] Unknown error."
 
         parsed = json.loads(req.read().decode("utf-8"))  # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
-        
-        return "[{0}]: {1}".format(parsed["term"], parsed["definition"]) if len(parsed["definition"]) < 150 else "[{0}]: {1}… (more at {2})".format(parsed["term"], parsed["definition"][:-150], "http://urbandictionary.com/define.php?term={0}".format(urllib.request.quote(word))) #url je rozbitý; url hardcoded, protože momentálně to stejně bere jen top definici, takže nepotřebuju přesný id
 
-    def on_command(self, connection, event, isPublic):
+        return "[{0}]: {1}".format(parsed[index]["term"], parsed[index]["definition"]) if len(parsed[index]["definition"]) < 150 else "[{0}]: {1}… (more at {2})".format(parsed[index]["term"], parsed[index]["definition"][:-150], "http://urbandictionary.com/define.php?term={0}".format(urllib.request.quote(word))) # url je rozbitý
+
+    def on_command(self, command, connection, event, isPublic):
         print('[Urban] Event object:', event)
         print('[Urban] Arguments object:', event.arguments)
 
-        for command in self._commands:
-            if event.arguments[0].startswith(command + ' '):
-                args = event.arguments[0].split(command + " ")[1] # change this when an argument system gets implemented
-                
-                if isPublic == True:
-                    connection.privmsg(event.target, self._getUrbanDef(args))
-                else:
-                    connection.privmsg(event.source, self._getUrbanDef(args))
+        args = event.arguments[0] # change this when an argument system gets implemented
+        m = re.match("([0-9]) (.*)", args)
+        if(m):
+            index = int(m.group(1))
+            args = str(m.group(2))
+        else:
+            index = 0
+            args = args
+
+        if isPublic == True:
+            connection.privmsg(event.target, self._getUrbanDef(args, index))
+        else:
+            connection.privmsg(event.source, self._getUrbanDef(args, index))

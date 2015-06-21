@@ -8,7 +8,10 @@ from urllib.error import URLError
 class Jisho(module_base.ModuleBase):
 
     def __init__(self):
-        self._commands = [ 'jisho', 'jword', 'jw', "jsearch", "jishosearch" ]
+        pass
+
+    def get_commands(self):
+        return [ 'jisho', 'jword', 'jw', "jsearch", "jishosearch" ]
 
     def _getJishoSearch(self, word):
         try:
@@ -46,15 +49,13 @@ class Jisho(module_base.ModuleBase):
 
         return final
 
-    def on_command(self, connection, event, isPublic):
+    def on_command(self, command, connection, event, isPublic):
         print('[JishoSearch] Event object:', event)
         print('[JishoSearch] Arguments object:', event.arguments)
 
-        for command in self._commands:
-            if event.arguments[0].startswith(command + ' '):
-                args = event.arguments[0].split(command + " ")[1] # change this when an argument system gets implemented
-                
-                if isPublic == True:
-                    connection.privmsg(event.target, self._getJishoSearch(args))
-                else:
-                    connection.privmsg(event.source, self._getJishoSearch(args))
+        args = event.arguments[0] # FYI: kdybych zapomnel: krva proč je to arguments pole, když je v něm stjeně jen jeden PRVEK ŠUMŠÁKLE
+        
+        if isPublic == True:
+            connection.privmsg(event.target, self._getJishoSearch(args))
+        else:
+            connection.privmsg(event.source, self._getJishoSearch(args))
