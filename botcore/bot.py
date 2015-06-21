@@ -10,6 +10,7 @@ from botcore import channel
 class Bot(object):
 
     def __init__(self, configfile):
+        self._exitSignal = False
         self._configfile = configfile
         self._client = client.Reactor()
         # Events: https://bitbucket.org/jaraco/irc/src/9e4fb0ce922398292ed4c0cfd3822e4fe19a940d/irc/events.py?at=default#cl-177
@@ -27,14 +28,19 @@ class Bot(object):
     def handle_signals(self, signal, func=None):
         if(signal == 15):
             s = "SIGTERM"
+            self._exitSignal = True
         elif(signal == 2):
             s = "SIGINT"
+            self._exitSignal = True
         else:
             s = "Unknown"
-        for i in self._server_list:
-            # .quit(s) to shodi na interrupted system call, ale disconnect funguje 
-            # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
-            self._server_list[i]["@@s"].disconnect(s)
+
+        # Clean exit
+        if self._exitSignal != False:
+            for i in self._server_list:
+                # .quit(s) to shodi na interrupted system call, ale disconnect funguje 
+                # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
+                self._server_list[i]["@@s"].disconnect(s)
 
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
@@ -44,8 +50,6 @@ class Bot(object):
             self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
         except irc.client.ServerConnectionError as e: 
             print(e)
-            # This should not exit the bot in the future but
-            # ensure some kind of reconnect
             self._server_list[address]['@@s'].reconnect()
            
         self._server_list[address]['@@s_cmdprefix'] = scmdprefix
@@ -54,10 +58,14 @@ class Bot(object):
         print('[{}] Connected to {}' .format(event.type.upper(), event.source))
 
     def _on_disconnect(self, connection, event):
-        # This should ensure some kind of reconnect as well (in the future, of course)
         print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
-        #self.connection.reconnect()
-        sys.exit(0)
+        
+        if self._exitSignal == False:
+            # We got disconnected from the server (timeout, etc.)
+            self._server_list[event.source.lower()]['@@s'].reconnect()
+        else:
+            # Got exit signal
+            sys.exit(0)
 
 
     def _on_privmsg(self, connection, event):
