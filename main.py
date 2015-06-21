@@ -8,7 +8,7 @@ import signal
 # TODO: lepší umístění handlení signálů, hlavně asi potom, co přijde podpora konzole
 
 if __name__ == '__main__':
-    configFile = 'config.json'
+    config_file = 'config.json'
     # Let's parse some arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', help='name of the config file')
@@ -16,9 +16,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.config:
-        configFile = args.config 
+        config_file = args.config 
 
-    b = bot.Bot(configFile)
+    b = bot.Bot(config_file)
     signal.signal(signal.SIGTERM, b.handle_signals)
     signal.signal(signal.SIGINT, b.handle_signals)	
     b.start()    

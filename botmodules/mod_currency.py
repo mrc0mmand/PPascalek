@@ -17,13 +17,13 @@ class Currency(module_base.ModuleBase):
     def __init__(self):
         self._currency_data = dict()
         self._argsRegex = re.compile('[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+(in|to)*[ ]*([a-zA-Z]{3}).*')
-        self._CNBRegex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
-        self._getCurrCNB()
+        self._CNB_regex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
+        self._get_curr_CNB()
 
     def get_commands(self):
         return ['curr', 'currency', 'currency-list', 'curr-list']
 
-    def _getCurrCNB(self):
+    def _get_curr_CNB(self):
         try:
             req = urllib.request.urlopen('http://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.txt', None, 5)
         except Exception as e:
@@ -31,7 +31,7 @@ class Currency(module_base.ModuleBase):
             return
         
         for line in req:
-            m = re.search(self._CNBRegex, str(line))
+            m = re.search(self._CNB_regex, str(line))
             if m:
                 self._currency_data[m.group(2)] = dict(amount=int(m.group(1)), rate=float(m.group(3).replace(',', '.')))
 

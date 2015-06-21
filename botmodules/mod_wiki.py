@@ -15,7 +15,7 @@ class Wiki(module_base.ModuleBase):
     def get_commands(self):
         return ['wiki', 'wikipedia']
 
-    def _getWikiResult(self, word):
+    def _get_wiki_result(self, word):
         try:
             req = urllib.request.urlopen("https://en.wikipedia.org/w/api.php?action=opensearch&format=json&search={0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
         except URLError as e:
@@ -39,5 +39,5 @@ class Wiki(module_base.ModuleBase):
 
         args = event.arguments[0] # change this when an argument system gets implemented
         #to_where = event.target if isPublic == True else event.source
-        self.send_msg(connection, event, isPublic, self._getWikiResult(args))
+        self.send_msg(connection, event, isPublic, self._get_wiki_result(args))
         

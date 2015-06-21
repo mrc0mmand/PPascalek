@@ -16,7 +16,7 @@ class Jisho(module_base.ModuleBase):
         return [ 'jisho', 'jword', 'jw', "jsearch", "jishosearch" ]
 
     # todo: přepsat
-    def _memesDesu(self, parsed, index):
+    def _memes_desu(self, parsed, index):
         memes = []
         eng = []
         for a in parsed["data"][index]["japanese"]:
@@ -40,7 +40,7 @@ class Jisho(module_base.ModuleBase):
         return tween
 
 
-    def _getJishoSearch(self, word):
+    def _get_jisho_search(self, word):
         try:
             req = urllib.request.urlopen("http://jisho.org/api/v1/search/words?keyword={0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
         except URLError as e:
@@ -56,7 +56,7 @@ class Jisho(module_base.ModuleBase):
         try:
             final = ""
             for i in range(0, len(parsed["data"])):
-                final += "{0}: {1} ——— ".format(i+1, self._memesDesu(parsed, i))
+                final += "{0}: {1} ——— ".format(i+1, self._memes_desu(parsed, i))
 
         except Exception as e:
             print("[JishoSearch] {0}".format(str(e)))
@@ -71,4 +71,4 @@ class Jisho(module_base.ModuleBase):
         print('[JishoSearch] Arguments object:', event.arguments)
 
         args = event.arguments[0] 
-        self.send_msg(connection, event, isPublic, self._getJishoSearch(args))
+        self.send_msg(connection, event, isPublic, self._get_jisho_search(args))

@@ -14,7 +14,7 @@ class Urban(module_base.ModuleBase):
     def get_commands(self):
         return [ 'urban', 'urbandictionary', 'urbandict' ]
 
-    def _getUrbanDef(self, word, index):
+    def _get_urban_def(self, word, index):
         try:
             req = urllib.request.urlopen("http://urbanscraper.herokuapp.com/search/{0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
         except URLError as e:
@@ -40,6 +40,6 @@ class Urban(module_base.ModuleBase):
             args = args
 
         to_where = event.target if isPublic == True else event.source
-        self.send_msg(connection, event, isPublic, self._getUrbanDef(args, index))
+        self.send_msg(connection, event, isPublic, self._get_urban_def(args, index))
             
 
