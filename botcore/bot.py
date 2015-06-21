@@ -11,7 +11,7 @@ class Bot(object):
 
     def __init__(self, configfile):
         self._exitSignal = False
-        self._nickChangeCounter = 3
+        self._nickChangeCounter = 0
         self._configfile = configfile
         self._client = client.Reactor()
         # Events: https://bitbucket.org/jaraco/irc/src/9e4fb0ce922398292ed4c0cfd3822e4fe19a940d/irc/events.py?at=default#cl-177
@@ -70,21 +70,22 @@ class Bot(object):
         
         if self._exitSignal == False:
             # We got disconnected from the server (timeout, etc.)
-            self._server_list[event.source.lower()]['@@s'].reconnect()
+            #self._server_list[event.source.lower()]['@@s'].reconnect()
+            sys.exit(0)
         else:
             # Got exit signal
             sys.exit(0)
 
     def _on_nicknameinuse(self, connection, event):
-        if(self._nickChangeCounter == 0):
+        if(self._nickChangeCounter == 3):
             print('[{}] Couldn\'t find a free nickname, disconnecting from {}' .format(event.type.upper(), event.source))
             connection.disconnect()
         else:
+            self._nickChangeCounter =+ 1 
             current_nick = connection.get_nickname()
             print('[{}] Nickname {} is already taken, changing it to {}' 
-                    .format(event.type.upper(), current_nick, current_nick + '_'))
-            connection.nick(current_nick + '_')     
-            self._nickChangeCounter =- 1   
+                    .format(event.type.upper(), current_nick, current_nick + ("_" * self._nickChangeCounter)))
+            connection.nick(current_nick + ('_' * self._nickChangeCounter))     
 
     def _on_privmsg(self, connection, event):
         print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
