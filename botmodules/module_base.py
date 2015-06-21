@@ -15,10 +15,12 @@ class ModuleBase(metaclass=ABCMeta):
     def send_msg(self, connection, event, isPublic, message):
         destination = event.target if isPublic != False else event.source
 
+        # Even though RFC has message limit 400 bytes, many servers
+        # have their own limit. Thus setting it to 400 characters.
+        buffer_max = (400 - len(destination) - 12)
         msg_len = len(message.encode('utf-8'))
 
-        if msg_len >= 512:
-            buffer_max = (512 - len(destination) - 12)
+        if msg_len >= buffer_max:
             data = utils.split_utf8(message.encode('utf-8'), buffer_max)
 
             for i in data:
@@ -26,7 +28,6 @@ class ModuleBase(metaclass=ABCMeta):
                     connection.privmsg(destination, i.decode('utf-8'))
                 except Exception as e:
                     print("Exception {0}" .format(str(e)))
-
         else:
             try:
                 connection.privmsg(destination, message)
