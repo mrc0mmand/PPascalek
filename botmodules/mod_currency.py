@@ -16,12 +16,12 @@ class Currency(module_base.ModuleBase):
 
     def __init__(self):
         self._currency_data = dict()
-        self._argsRegex = re.compile('[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+([a-zA-Z]{3}).*')
+        self._argsRegex = re.compile('[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+(in|to)*[ ]*([a-zA-Z]{3}).*')
         self._CNBRegex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
         self._getCurrCNB()
 
     def get_commands(self):
-        return [ 'curr', 'currency', 'currency-list', 'curr-list']
+        return ['curr', 'currency', 'currency-list', 'curr-list']
 
     def _getCurrCNB(self):
         try:
@@ -33,13 +33,7 @@ class Currency(module_base.ModuleBase):
         for line in req:
             m = re.search(self._CNBRegex, str(line))
             if m:
-                #print(m.groups())
                 self._currency_data[m.group(2)] = dict(amount=int(m.group(1)), rate=float(m.group(3).replace(',', '.')))
-            else:
-                print('Nope.')
-
-        print(self._currency_data)
-        print(self._currency_data['USD'].get('amount'))
 
     def _convert(self, code_from, code_to, amount_from):
         res = 0
@@ -55,21 +49,26 @@ class Currency(module_base.ModuleBase):
 
         return res
 
+    def _send_msg(self, connection, event, isPublic, message):
+        if isPublic == True:
+            connection.privmsg(event.target, message)
+        else:
+            connection.privmsg(event.source, message)
 
     def on_command(self, command, connection, event, isPublic):
-        print('[Currency] Event object:', event)
-
-        print("Command: {}\nArgument: {}" .format(command, event.arguments[0]))
-
-        if event.arguments[0]:
+        if command == 'curr' or command == 'currency': 
             m = re.search(self._argsRegex, event.arguments[0])
 
             if m:
-                to_where = event.target if isPublic == True else event.source
-                connection.privmsg(to_where,self._convert(m.group(2).upper(), m.group(3).upper(), int(m.group(1))))
+                converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), float(m.group(1))), 2)
+
+                self._send_msg(connection, event, isPublic, '{} {} = {} {}' .format(round(float(m.group(1)), 2), 
+                               m.group(2).upper(), converted, m.group(4).upper()))
             else:
-                # Again some help
-                pass
-        else:
-            # There should be some help
-            pass
+                self._send_msg(connection, event, isPublic, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
+                               'available currencies]' .format(event.arguments[1], command))
+
+        elif command == 'curr-list' or command == 'currency-list':
+            curr_list = ', '.join('{!s}'.format(key) for (key,val) in self._currency_data.items())
+            self._send_msg(connection, event, isPublic, curr_list)
+   
