@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-"""Returns urbandictionary definition for user's string"""
+"""Returns urbandictionary definitions for user's string"""
 
 from . import module_base
 import urllib.request, sys, re, json
@@ -40,6 +40,6 @@ class Urban(module_base.ModuleBase):
             args = args
 
         to_where = event.target if isPublic == True else event.source
-        connection.privmsg(to_where, self._getUrbanDef(args, index))
+        self.send_msg(connection, event, isPublic, self._getUrbanDef(args, index))
             
 

@@ -55,5 +55,5 @@ class Jisho(module_base.ModuleBase):
         print('[JishoSearch] Arguments object:', event.arguments)
 
         args = event.arguments[0] 
-        to_where = event.target if isPublic == True else event.source
-        connection.privmsg(to_where, self._getJishoSearch(args))
+        #to_where = event.target if isPublic == True else event.source
+        self.send_msg(connection, event, isPublic, self._getJishoSearch(args))
