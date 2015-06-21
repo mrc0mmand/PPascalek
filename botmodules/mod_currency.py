@@ -6,11 +6,17 @@ import urllib.request
 import sys
 import re
 
+# TODO:
+# Cache
+# BTC
+# Doge
+# 
 class Currency(module_base.ModuleBase):
 
     def __init__(self):
         self._currency_data = dict()
-        self._regex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
+        self._argsRegex = re.compile('[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+([a-zA-Z]{3}).*')
+        self._CNBRegex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
         self._getCurrCNB()
 
     def get_commands(self):
@@ -24,9 +30,9 @@ class Currency(module_base.ModuleBase):
             return
         
         for line in req:
-            m = re.search(self._regex, str(line))
+            m = re.search(self._CNBRegex, str(line))
             if m:
-                print(m.groups())
+                #print(m.groups())
                 self._currency_data[m.group(2)] = dict(amount=int(m.group(1)), rate=float(m.group(3).replace(',', '.')))
             else:
                 print('Nope.')
@@ -53,8 +59,18 @@ class Currency(module_base.ModuleBase):
         print('[Currency] Event object:', event)
 
         print("Command: {}\nArgument: {}" .format(command, event.arguments[0]))
-        
-        if isPublic == True:
-            connection.privmsg(event.target, self._convert('CZK', 'USD', 1))
+
+        if event.arguments[0]:
+            m = re.search(self._argsRegex, event.arguments[0])
+
+            if m:
+                if isPublic == True:
+                    connection.privmsg(event.target, self._convert(m.group(2).upper(), m.group(3).upper(), int(m.group(1))))
+                else:
+                    connection.privmsg(event.source, self._convert(m.group(2).upper(), m.group(3).upper(), int(m.group(1))))
+            else:
+                # Again some help
+                pass
         else:
-            connection.privmsg(event.source, self._convert('CZK', 'USD', 1))
+            # There should be some help
+            pass

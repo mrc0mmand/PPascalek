@@ -41,7 +41,7 @@ class ModuleHandler(object):
     def handle_command(self, connection, event, isPublic):
         # Get first word from the argument string, save it and strip it
         command = event.arguments[0].partition(' ')[0]
-        event.arguments[0] = event.arguments[0].partition(' ')[1]
+        event.arguments[0] = event.arguments[0].partition(' ')[2]
 
         if command:
             command.lower()
