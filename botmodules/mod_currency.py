@@ -4,36 +4,50 @@
 
 from . import module_base
 import urllib.request
+import time
 import sys
 import re
 
 # TODO:
-# Cache
 # BTC
 # Doge
-# 
+
 class Currency(module_base.ModuleBase):
 
     def __init__(self):
+        self._last_update = time.time()
         self._currency_data = dict()
         self._argsRegex = re.compile('[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+(in|to)*[ ]*([a-zA-Z]{3}).*')
         self._CNB_regex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
-        self._get_curr_CNB()
+        self._do_update()
 
     def get_commands(self):
         return ['curr', 'currency', 'currency-list', 'curr-list']
+
+    def _do_update(self):
+        print('[Currency] Updating currency rates')
+
+        rc = 0
+        rc += self._get_curr_CNB()
+
+        if rc != 0:
+            self._last_update -= 1800
+        else:
+            self._last_update = time.time()
 
     def _get_curr_CNB(self):
         try:
             req = urllib.request.urlopen('http://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.txt', None, 5)
         except Exception as e:
             print('[Currency] Couldn\'t fetch currency rates for CNB.', file=sys.stderr)
-            return
+            return 1
         
         for line in req:
             m = re.search(self._CNB_regex, str(line))
             if m:
                 self._currency_data[m.group(2)] = dict(amount=int(m.group(1)), rate=float(m.group(3).replace(',', '.')))
+
+        return 0
 
     def _convert(self, code_from, code_to, amount_from):
         res = 0
@@ -50,6 +64,9 @@ class Currency(module_base.ModuleBase):
         return res
 
     def on_command(self, command, connection, event, isPublic):
+        if time.time() - self._last_update >= 1800:
+            self._do_update()
+
         if command == 'curr' or command == 'currency': 
             m = re.search(self._argsRegex, event.arguments[0])
 
