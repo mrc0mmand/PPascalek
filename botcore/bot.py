@@ -27,7 +27,7 @@ class Bot(object):
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
         self._server_list[address]['@@s'] = self._client.server()
-        
+
         try:
             self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
         except irc.client.ServerConnectionError as e:
@@ -68,6 +68,9 @@ class Bot(object):
                 prefixlen = len(self._server_list[serveraddr][target].get_cmdprefix())
                 # Strip the command prefix from the message string
                 event.arguments[0] = event.arguments[0][prefixlen:]
+                # In this event we use only the first array index -
+                # so we can abuse second one for channel prefix
+                event.arguments.append(self._server_list[serveraddr][target].get_cmdprefix())
                 # Call command handler
                 self._module_handler.handle_command(connection, event, True)
 
@@ -81,6 +84,9 @@ class Bot(object):
                 prefixlen = len(self._server_list[serveraddr]['@@s_cmdprefix'])
                 # Strip the command prefix from the message string
                 event.arguments[0] = event.arguments[0][prefixlen:]
+                # In this event we use only the first array index -
+                # so we can abuse second one for channel prefix
+                event.arguments.append(self._server_list[serveraddr]['@@s_cmdprefix'])
                 # Call command handler
                 self._module_handler.handle_command(connection, event, False)
 
@@ -91,6 +97,14 @@ class Bot(object):
                                          event.source.split('!', 1)[0], event.arguments[0]))# Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
             pass
+
+        # Event target - channel or nickname (converted to lowercase)
+        target = event.target.lower()
+        # Address of the irc server
+        serveraddr = connection.server
+        # In this event we use only the first array index -
+        # so we can abuse second one for channel prefix
+        event.arguments.append(self._server_list[serveraddr][target].get_cmdprefix())
 
         self._module_handler.handle_pubmsg(connection, event)
 
