@@ -12,7 +12,7 @@ class ModuleBase(metaclass=ABCMeta):
         pass
 
     def send_msg(self, connection, event, isPublic, message):
-        if isPublic == True:
+        if isPublic != False:
             connection.privmsg(event.target, message)
         else:
             connection.privmsg(event.source, message)
