@@ -21,7 +21,7 @@ class Wiki(module_base.ModuleBase):
         except URLError as e:
             return "[EnWiki] Definition could not be found." 
         except Exception as e:
-            print('[EnWiki] Error sending request to urbanscrapper. Reason: {0}'.format(str(e)), file=sys.stderr)
+            print('[EnWiki] Error sending request to wikipedia\'s API. Reason: {0}'.format(str(e)), file=sys.stderr)
             return "[EnWiki] Unknown error."
 
         parsed = json.loads(req.read().decode("utf-8"))  # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
