@@ -19,6 +19,6 @@ if __name__ == '__main__':
         configFile = args.config 
 
     b = bot.Bot(configFile)
-    signal.signal(signal.SIGTERM, b.handle_signal)
+    signal.signal(signal.SIGTERM, b.handle_signals)
     signal.signal(signal.SIGINT, b.handle_signals)	
     b.start()    
