@@ -64,8 +64,8 @@ class Currency(module_base.ModuleBase):
                 self._send_msg(connection, event, isPublic, '{} {} = {} {}' .format(round(float(m.group(1)), 2), 
                                m.group(2).upper(), converted, m.group(4).upper()))
             else:
-                self._send_msg(connection, event, isPublic, 'Usage: {}{} xx.x CUR (in|to) CUR [type {}{}-list for '
-                               'available currencies]' .format(event.arguments[1], command, event.arguments[1], command))
+                self._send_msg(connection, event, isPublic, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
+                               'available currencies]' .format(event.arguments[1], command))
 
         elif command == 'curr-list' or command == 'currency-list':
             curr_list = ', '.join('{!s}'.format(key) for (key,val) in self._currency_data.items())
