@@ -85,7 +85,8 @@ class Bot(object):
             self._nickChangeCounter =+ 1 
             current_nick = connection.get_nickname()
             print('[{}] Nickname {} is already taken, changing it to {}' 
-                    .format(event.type.upper(), current_nick, current_nick + ("_" * self._nickChangeCounter)))
+                  .format(event.type.upper(), current_nick, current_nick + 
+                  ("_" * self._nickChangeCounter)))
             connection.nick(current_nick + ('_' * self._nickChangeCounter))     
 
     def _on_privmsg(self, connection, event):

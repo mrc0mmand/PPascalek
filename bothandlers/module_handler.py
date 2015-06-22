@@ -49,7 +49,7 @@ class ModuleHandler(object):
             for cmd in self._command_list:
                 if command == cmd:
                     self._loaded_modules[self._command_list[cmd]].on_command(command_data, 
-                                                                 connection, event, is_public)
+                                                                  connection, event, is_public)
 
     def _get_class_name(self, mod_name):
         class_name = ''

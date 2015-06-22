@@ -62,8 +62,8 @@ class Currency(module_base.ModuleBase):
                   self._currency_data[code_from]['rate'])
         else:
             res = (((amount_from / self._currency_data[code_from]['amount']) / 
-                    (self._currency_data[code_to]['rate'] / self._currency_data[code_to]['amount'])) * 
-                    self._currency_data[code_from]['rate'])
+                  (self._currency_data[code_to]['rate'] / self._currency_data[code_to]['amount'])) * 
+                  self._currency_data[code_from]['rate'])
 
         return res
 
