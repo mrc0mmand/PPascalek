@@ -78,7 +78,8 @@ class Bot(object):
 
     def _on_nicknameinuse(self, connection, event):
         if(self._nickChangeCounter == 3):
-            print('[{}] Couldn\'t find a free nickname, disconnecting from {}' .format(event.type.upper(), event.source))
+            print('[{}] Couldn\'t find a free nickname, disconnecting from {}' 
+                  .format(event.type.upper(), event.source))
             connection.disconnect()
         else:
             self._nickChangeCounter =+ 1 
@@ -161,7 +162,8 @@ class Bot(object):
         self._module_handler.handle_quit(connection, event)
 
     def _on_nick(self, connection, event):
-        print('[{}] {} is now known as {}' .format(event.type.upper(), event.source.split('!', 1)[0], event.target))
+        print('[{}] {} is now known as {}' .format(event.type.upper(), event.source.split('!', 1)[0], 
+                                                   event.target))
         self._module_handler.handle_nick(connection, event)
 
     def join_channel(self, serveraddr, channel, password):

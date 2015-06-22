@@ -41,12 +41,15 @@ class Jisho(module_base.ModuleBase):
 
 
     def _get_jisho_search(self, word):
-        try:
-            req = urllib.request.urlopen("http://jisho.org/api/v1/search/words?keyword={0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
+        try: 
+            # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
+            req = urllib.request.urlopen("http://jisho.org/api/v1/search/words?keyword={0}"
+                  .format(urllib.request.quote(word)), None, 5) 
         except URLError as e:
             return "[JishoSearch] 404" 
         except Exception as e:
-            print("[JishoSearch] Error sending request to jisho's API. Reason: {0}".format(str(e)), file=sys.stderr)
+            print("[JishoSearch] Error sending request to jisho's API. Reason: {0}"
+                  .format(str(e)), file=sys.stderr)
             return "[JishoSearch] Unknown error."
 
         parsed = json.loads(req.read().decode("utf-8"))  # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3

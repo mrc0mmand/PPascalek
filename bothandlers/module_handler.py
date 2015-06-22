@@ -48,7 +48,8 @@ class ModuleHandler(object):
             command.lower()
             for cmd in self._command_list:
                 if command == cmd:
-                    self._loaded_modules[self._command_list[cmd]].on_command(command_data, connection, event, is_public)
+                    self._loaded_modules[self._command_list[cmd]].on_command(command_data, 
+                                                                 connection, event, is_public)
 
     def _get_class_name(self, mod_name):
         class_name = ''
@@ -73,7 +74,8 @@ class ModuleHandler(object):
             if not mod_name.startswith("mod_"):
                 return
 
-            print('[ModuleHandler] Loading module \'{}\' [{}]' .format(mod_name, self._modules_path + '.' + mod_name))
+            print('[ModuleHandler] Loading module \'{}\' [{}]' 
+                  .format(mod_name, self._modules_path + '.' + mod_name))
             # Import it
             loaded_mod = __import__(self._modules_path + '.' + mod_name, fromlist=[mod_name])
 

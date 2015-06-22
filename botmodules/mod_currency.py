@@ -37,7 +37,8 @@ class Currency(module_base.ModuleBase):
 
     def _get_curr_CNB(self):
         try:
-            req = urllib.request.urlopen('http://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.txt', None, 5)
+            req = urllib.request.urlopen('http://www.cnb.cz/cs/financni_trhy/devizovy_trh/'
+                                         'kurzy_devizoveho_trhu/denni_kurz.txt', None, 5)
         except Exception as e:
             print('[Currency] Couldn\'t fetch currency rates for CNB.', file=sys.stderr)
             return 1
@@ -45,7 +46,8 @@ class Currency(module_base.ModuleBase):
         for line in req:
             m = re.search(self._CNB_regex, str(line))
             if m:
-                self._currency_data[m.group(2)] = dict(amount=int(m.group(1)), rate=float(m.group(3).replace(',', '.')))
+                self._currency_data[m.group(2)] = dict(amount=int(m.group(1)), 
+                                                       rate=float(m.group(3).replace(',', '.')))
 
         return 0
 
@@ -53,9 +55,11 @@ class Currency(module_base.ModuleBase):
         res = 0
 
         if code_from == 'CZK':
-            res = (amount_from / (self._currency_data[code_to]['rate'] / self._currency_data[code_to]['amount']))
+            res = (amount_from / (self._currency_data[code_to]['rate'] / 
+                  self._currency_data[code_to]['amount']))
         elif code_to == 'CZK':
-            res = ((amount_from / self._currency_data[code_from]['amount']) * self._currency_data[code_from]['rate'])
+            res = ((amount_from / self._currency_data[code_from]['amount']) * 
+                  self._currency_data[code_from]['rate'])
         else:
             res = (((amount_from / self._currency_data[code_from]['amount']) / 
                     (self._currency_data[code_to]['rate'] / self._currency_data[code_to]['amount'])) * 
@@ -74,11 +78,12 @@ class Currency(module_base.ModuleBase):
                 source = float(m.group(1).replace(',', '.'))
                 converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), source), 2)
 
-                self.send_msg(connection, event, is_public, '{:,.2f} {} = {:,.2f} {}' .format(round(source, 2), 
-                               m.group(2).upper(), converted, m.group(4).upper()))
+                self.send_msg(connection, event, is_public, '{:,.2f} {} = {:,.2f} {}' 
+                              .format(round(source, 2), m.group(2).upper(), converted, m.group(4).upper()))
             else:
-                self.send_msg(connection, event, is_public, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
-                               'available currencies]' .format(command_data[0], command_data[1]))
+                self.send_msg(connection, event, is_public, 
+                              'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
+                              'available currencies]' .format(command_data[0], command_data[1]))
 
         elif command_data[1] == 'curr-list' or command_data[1] == 'currency-list':
             curr_list = ', '.join('{!s}'.format(key) for (key,val) in self._currency_data.items())

@@ -16,15 +16,23 @@ class Urban(module_base.ModuleBase):
 
     def _get_urban_def(self, word, index):
         try:
-            req = urllib.request.urlopen("http://urbanscraper.herokuapp.com/search/{0}".format(urllib.request.quote(word)), None, 5) # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
+            # quote by měl bejt v py3 fixnutej na unikód, jestli neni tak rip
+            req = urllib.request.urlopen("http://urbanscraper.herokuapp.com/search/{0}"
+                  .format(urllib.request.quote(word)), None, 5)
         except URLError as e:
             return "[Urban] Definition could not be found." 
         except Exception as e:
-            print('[Urban] Error sending request to urbanscrapper. Reason: {0}'.format(str(e)), file=sys.stderr)
+            print('[Urban] Error sending request to urbanscrapper. Reason: {0}' 
+                  .format(str(e)), file=sys.stderr)
             return "[Urban] Unknown error."
 
-        parsed = json.loads(req.read().decode("utf-8"))  # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
-        return "[{0}]: {1}".format(parsed[index]["term"], parsed[index]["definition"]) if len(parsed[index]["definition"]) < 150 else "[{0}]: {1}… (more at {2})".format(parsed[index]["term"], parsed[index]["definition"][:-150], "http://urbandictionary.com/define.php?term={0}".format(urllib.request.quote(word))) # url je rozbitý
+        # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
+        parsed = json.loads(req.read().decode("utf-8"))  
+        return "[{0}]: {1}".format(parsed[index]["term"], parsed[index]["definition"]) 
+               if len(parsed[index]["definition"]) < 150 
+               else "[{0}]: {1}… (more at {2})" .format(parsed[index]["term"], 
+                    parsed[index]["definition"][:-150], "http://urbandictionary.com/define.php?term={0}"
+                    .format(urllib.request.quote(word))) # url je rozbitý
 
     def on_command(self, command_data, connection, event, is_public):
         print('[Urban] Event object:', event)
