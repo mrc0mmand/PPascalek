@@ -38,16 +38,17 @@ class ModuleHandler(object):
         for module in self._loaded_modules:
             self._loaded_modules[module].on_nick(connection, event)
 
-    def handle_command(self, connection, event, isPublic):
+    def handle_command(self, connection, event, command_data, isPublic):
         # Get first word from the argument string, save it and strip it
         command = event.arguments[0].partition(' ')[0]
         event.arguments[0] = event.arguments[0].partition(' ')[2]
+        command_data.append(command)
 
         if command:
             command.lower()
             for cmd in self._command_list:
                 if command == cmd:
-                    self._loaded_modules[self._command_list[cmd]].on_command(cmd, connection, event, isPublic)
+                    self._loaded_modules[self._command_list[cmd]].on_command(command_data, connection, event, isPublic)
 
     def _get_class_name(self, mod_name):
         class_name = ''

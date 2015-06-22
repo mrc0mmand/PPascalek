@@ -66,7 +66,7 @@ class Jisho(module_base.ModuleBase):
 
 
 
-    def on_command(self, command, connection, event, isPublic):
+    def on_command(self, command_data, connection, event, isPublic):
         print('[JishoSearch] Event object:', event)
         print('[JishoSearch] Arguments object:', event.arguments)
 

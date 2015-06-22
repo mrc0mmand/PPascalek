@@ -33,7 +33,7 @@ class Wiki(module_base.ModuleBase):
         else:
             return "[EnWiki] Nothing found."
 
-    def on_command(self, command, connection, event, isPublic):
+    def on_command(self, command_data, connection, event, isPublic):
         print('[EnWiki] Event object:', event)
         print('[EnWiki] Arguments object:', event.arguments)
 
