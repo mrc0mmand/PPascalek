@@ -63,7 +63,7 @@ class Currency(module_base.ModuleBase):
 
         return res
 
-    def on_command(self, command_data, connection, event, isPublic):
+    def on_command(self, command_data, connection, event, is_public):
         if time.time() - self._last_update >= 1800:
             self._do_update()
 
@@ -74,13 +74,13 @@ class Currency(module_base.ModuleBase):
                 source = float(m.group(1).replace(',', '.'))
                 converted = round(self._convert(m.group(2).upper(), m.group(4).upper(), source), 2)
 
-                self.send_msg(connection, event, isPublic, '{:,.2f} {} = {:,.2f} {}' .format(round(source, 2), 
+                self.send_msg(connection, event, is_public, '{:,.2f} {} = {:,.2f} {}' .format(round(source, 2), 
                                m.group(2).upper(), converted, m.group(4).upper()))
             else:
-                self.send_msg(connection, event, isPublic, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
+                self.send_msg(connection, event, is_public, 'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
                                'available currencies]' .format(command_data[0], command_data[1]))
 
         elif command_data[1] == 'curr-list' or command_data[1] == 'currency-list':
             curr_list = ', '.join('{!s}'.format(key) for (key,val) in self._currency_data.items())
-            self.send_msg(connection, event, isPublic, curr_list)
+            self.send_msg(connection, event, is_public, curr_list)
    

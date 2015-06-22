@@ -12,8 +12,8 @@ class ModuleBase(metaclass=ABCMeta):
     def get_commands(self):
         pass
 
-    def send_msg(self, connection, event, isPublic, message):
-        destination = event.target if isPublic != False else event.source
+    def send_msg(self, connection, event, is_public, message):
+        destination = event.target if is_public != False else event.source
 
         # Even though RFC has message limit 400 bytes, many servers
         # have their own limit. Thus setting it to 400 characters.
@@ -41,7 +41,7 @@ class ModuleBase(metaclass=ABCMeta):
     def on_pubmsg(self, connection, event):
         pass
 
-    def on_command(self, command_data, connection, event, isPublic):
+    def on_command(self, command_data, connection, event, is_public):
         pass
 
     def on_join(self, connection, event):

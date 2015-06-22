@@ -33,11 +33,11 @@ class Wiki(module_base.ModuleBase):
         else:
             return "[EnWiki] Nothing found."
 
-    def on_command(self, command_data, connection, event, isPublic):
+    def on_command(self, command_data, connection, event, is_public):
         print('[EnWiki] Event object:', event)
         print('[EnWiki] Arguments object:', event.arguments)
 
         args = event.arguments[0] # change this when an argument system gets implemented
-        #to_where = event.target if isPublic == True else event.source
-        self.send_msg(connection, event, isPublic, self._get_wiki_result(args))
+        #to_where = event.target if is_public == True else event.source
+        self.send_msg(connection, event, is_public, self._get_wiki_result(args))
         

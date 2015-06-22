@@ -66,9 +66,9 @@ class Jisho(module_base.ModuleBase):
 
 
 
-    def on_command(self, command_data, connection, event, isPublic):
+    def on_command(self, command_data, connection, event, is_public):
         print('[JishoSearch] Event object:', event)
         print('[JishoSearch] Arguments object:', event.arguments)
 
         args = event.arguments[0] 
-        self.send_msg(connection, event, isPublic, self._get_jisho_search(args))
+        self.send_msg(connection, event, is_public, self._get_jisho_search(args))
