@@ -75,3 +75,27 @@ class ConfigParser(object):
             return default
         else:
             return channel['cmdprefix']
+
+    def get_mod_settings(self, module):
+        mod_settings = dict()
+ 
+        try:
+            for s in self._content['servers']:
+                if 'mod_settings' in s:
+                    for m in s['mod_settings']:
+                        if m['name'] == module:
+                            if s['address'] not in mod_settings:
+                                mod_settings[s['address']] = dict()
+                            mod_settings[s['address']]['@global'] = m
+                if 'channels' in s:
+                    for c in s['channels']:
+                        if 'mod_settings' in c:
+                            for m in c['mod_settings']:
+                                if m['name'] == module:
+                                    if s['address'] not in mod_settings:
+                                        mod_settings[s['address']] = dict()
+                                    mod_settings[s['address']][c['name']] = m
+        except Exception as e:
+            print('[ConfigParser] Couldn\'t get module data: {}' .format(e), file=sys.stderr)
+
+        return mod_settings
