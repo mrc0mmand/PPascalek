@@ -90,11 +90,11 @@ class Currency(module_base.ModuleBase):
 
         return res
 
-    def on_command(self, command_data, connection, event, is_public):
+    def on_command(self, module_data, connection, event, is_public):
         if time.time() - self._last_update >= 1800:
             self._do_update()
 
-        if command_data[1] == 'curr' or command_data[1] == 'currency': 
+        if module_data['command'] == 'curr' or module_data['command'] == 'currency': 
             m = re.search(self._args_regex, event.arguments[0])
 
             if m:
@@ -107,9 +107,9 @@ class Currency(module_base.ModuleBase):
             else:
                 self.send_msg(connection, event, is_public, 
                               'Usage: {0}{1} xx.x CUR (in|to) CUR [type {0}{1}-list for '
-                              'available currencies]' .format(command_data[0], command_data[1]))
+                              'available currencies]' .format(module_data['prefix'], module_data['command']))
 
-        elif command_data[1] == 'curr-list' or command_data[1] == 'currency-list':
+        elif module_data['command'] == 'curr-list' or module_data['command'] == 'currency-list':
             curr_list = ', '.join('{!s}'.format(key) for (key,val) in self._currency_data.items())
             self.send_msg(connection, event, is_public, curr_list)
    

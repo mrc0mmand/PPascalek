@@ -97,8 +97,7 @@ class Bot(object):
             pass
        
         # Command prefix & actual command (the latter is added in module_handler)
-        # [0] => command prefix, [1] => command string
-        command_data = [] 
+        module_data = dict() 
         # Event target - channel or nickname (converted to lowercase)
         target = event.target.lower()
         # Address of the irc server
@@ -113,10 +112,10 @@ class Bot(object):
                 prefixlen = len(self._server_list[serveraddr][target].get_cmdprefix())
                 # Strip the command prefix from the message string
                 event.arguments[0] = event.arguments[0][prefixlen:]
-                # Add command prefix into command_data array
-                command_data.append(self._server_list[serveraddr][target].get_cmdprefix())
+                # Add command prefix into module_data dictionary
+                module_data['prefix'] = self._server_list[serveraddr][target].get_cmdprefix()
                 # Call module handler
-                self._module_handler.handle_command(connection, event, command_data, True)
+                self._module_handler.handle_command(connection, event, module_data, True)
 
             self._module_handler.handle_pubmsg(connection, event)
         else:
@@ -128,10 +127,10 @@ class Bot(object):
                 prefixlen = len(self._server_list[serveraddr]['@@s_cmdprefix'])
                 # Strip the command prefix from the message string
                 event.arguments[0] = event.arguments[0][prefixlen:]
-                # Add command prefix into command_data array
-                command_data.append(self._server_list[serveraddr]['@@s_cmdprefix'])
+                # Add command prefix into module_data
+                module_data['prefix'] = self._server_list[serveraddr]['@@s_cmdprefix']
                 # Call command handler
-                self._module_handler.handle_command(connection, event, command_data, False)
+                self._module_handler.handle_command(connection, event, module_data, False)
 
             self._module_handler.handle_privmsg(connection, event)
 

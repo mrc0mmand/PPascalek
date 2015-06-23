@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-""" Performs a search on the online dictionary jisho.org """
-
 
 from . import module_base
 import urllib.request
@@ -31,10 +29,7 @@ class Menu(module_base.ModuleBase):
 
         return out
 
-    def on_command(self, command_data, connection, event, is_public):
-        print('[Menu_mod] Event object:', event)
-        print('[Menu_mod] Arguments object:', event.arguments)
-
+    def on_command(self, module_data, connection, event, is_public):
         args = event.arguments[0]
 
         self._get_menu(connection, event, is_public, args)

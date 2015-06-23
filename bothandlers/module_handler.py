@@ -45,18 +45,18 @@ class ModuleHandler(object):
         for module in self._loaded_modules:
             self._loaded_modules[module].on_nick(connection, event)
 
-    def handle_command(self, connection, event, command_data, is_public):
+    def handle_command(self, connection, event, module_data, is_public):
         # Get first word from the argument string, save it and strip it
         command = event.arguments[0].partition(' ')[0]
         event.arguments[0] = event.arguments[0].partition(' ')[2]
-        command_data.append(command)
+        module_data['command'] = command
 
         if command:
             command.lower()
             for cmd in self._command_list:
                 if command == cmd:
                     try:
-                        self._loaded_modules[self._command_list[cmd]].on_command(command_data, 
+                        self._loaded_modules[self._command_list[cmd]].on_command(module_data, 
                                                                       connection, event, is_public)
                     except Exception as e:
                         print('[ModuleHandler] Module {} caused an exception: {}'

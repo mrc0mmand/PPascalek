@@ -41,7 +41,7 @@ class ModuleBase(metaclass=ABCMeta):
     def on_pubmsg(self, connection, event):
         pass
 
-    def on_command(self, command_data, connection, event, is_public):
+    def on_command(self, module_data, connection, event, is_public):
         pass
 
     def on_join(self, connection, event):

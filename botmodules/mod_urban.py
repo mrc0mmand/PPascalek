@@ -34,10 +34,7 @@ class Urban(module_base.ModuleBase):
                     parsed[index]["definition"][:-150], "http://urbandictionary.com/define.php?term={0}"
                     .format(urllib.request.quote(word))) # url je rozbitý
 
-    def on_command(self, command_data, connection, event, is_public):
-        print('[Urban] Event object:', event)
-        print('[Urban] Arguments object:', event.arguments)
-
+    def on_command(self, module_data, connection, event, is_public):
         args = event.arguments[0] # change this when an argument system gets implemented
         m = re.match("([0-9]+) (.*)", args)
         if(m):
