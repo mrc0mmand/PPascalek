@@ -1,5 +1,6 @@
 # Custom config
-config.json
+*.json
+!config.json.example
 
 # Python
 __pycache__/
