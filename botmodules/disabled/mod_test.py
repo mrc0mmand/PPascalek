@@ -5,7 +5,7 @@ from . import module_base
 
 class Test(module_base.ModuleBase):
 
-    def __init__(self, config_file):
+    def __init__(self):
         print("mod_test Initialized")
 
     def on_privmsg(self, connection, event):

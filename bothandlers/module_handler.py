@@ -114,7 +114,7 @@ class ModuleHandler(object):
             loaded_class = getattr(loaded_mod, class_name)
 
             # Create an instance of the class
-            self._loaded_modules[mod_name] = loaded_class(self._config_file)
+            self._loaded_modules[mod_name] = loaded_class()
 
             commands = self._loaded_modules[mod_name].get_commands()
             

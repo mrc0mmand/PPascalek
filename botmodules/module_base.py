@@ -6,7 +6,7 @@ from botutils import utils
 
 class ModuleBase(metaclass=ABCMeta):
 
-    def __init__(self, config_file):
+    def __init__(self):
         pass
 
     def get_commands(self):
