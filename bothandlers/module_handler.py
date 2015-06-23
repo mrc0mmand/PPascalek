@@ -51,8 +51,12 @@ class ModuleHandler(object):
             command.lower()
             for cmd in self._command_list:
                 if command == cmd:
-                    self._loaded_modules[self._command_list[cmd]].on_command(command_data, 
-                                                                  connection, event, is_public)
+                    try:
+                        self._loaded_modules[self._command_list[cmd]].on_command(command_data, 
+                                                                      connection, event, is_public)
+                    except Exception as e:
+                        print('[ModuleHandler] Module {} caused an exception: {}'
+                              .format(self._command_list[cmd], e), file=sys.stderr)
 
     def _get_class_name(self, mod_name):
         class_name = ''
