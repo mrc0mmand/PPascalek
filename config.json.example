@@ -15,7 +15,21 @@
                 {
                     "name" : "#channel2",
                     "pass" : "secret",
-                    "cmdprefix" : "`"
+                    "cmdprefix" : "`",
+
+                    "mod_settings" : [
+                        {
+                            "name" : "first_module",
+                            "database" : "channel2.db"
+                        }
+                    ]
+                }
+            ],
+
+            "mod_settings" : [
+                {
+                    "name" : "first_module",
+                    "database" : "module.db"
                 }
             ]
         }
