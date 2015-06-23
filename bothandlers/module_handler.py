@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+from botutils import config_parser
 import pkgutil
 import importlib
 import sys
@@ -20,6 +21,9 @@ class ModuleHandler(object):
         # Initialize empty dictionary for loaded modules
         self._loaded_modules = dict()
         self._load_all_modules()
+        # Get module settings
+        self._cp = config_parser.ConfigParser(config_file)
+        self._mod_settings = self._cp.get_mod_settings()
 
     def handle_privmsg(self, connection, event):
         for module in self._loaded_modules:
