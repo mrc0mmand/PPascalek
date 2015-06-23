@@ -91,6 +91,7 @@ class Currency(module_base.ModuleBase):
         return res
 
     def on_command(self, module_data, connection, event, is_public):
+        print(module_data)
         if time.time() - self._last_update >= 1800:
             self._do_update()
 

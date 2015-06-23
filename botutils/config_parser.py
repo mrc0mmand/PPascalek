@@ -4,6 +4,7 @@
 import json
 import os
 import sys
+import copy
 
 class ConfigParser(object):
 
@@ -83,16 +84,22 @@ class ConfigParser(object):
             for s in self._content['servers']:
                 if 'mod_settings' in s:
                     # Load global module settings
+                    mod_settings[s['address']] = dict()
                     for m in s['mod_settings']:
-                        mod_settings[s['address']] = dict()
                         mod_settings[s['address']][m['name']] = m
+
                 if 'channels' in s:
                     for c in s['channels']:
                         if 'mod_settings' in c:
                             # Overwrite global module settings with channel specific ones
+                            mod_settings[s['address']][c['name']] = dict()
+
                             for m in c['mod_settings']:
-                                mod_settings[s['address']][c['name']] = dict()
-                                mod_settings[s['address']][c['name']][m['name']] = mod_settings[s['address']][m['name']]
+                                if m['name'] in mod_settings[s['address']]:
+                                    mod_settings[s['address']][c['name']][m['name']] = copy.deepcopy(mod_settings[s['address']][m['name']])
+                                else:
+                                    mod_settings[s['address']][c['name']][m['name']] = dict()
+
                                 for key, value in m.items():
                                     mod_settings[s['address']][c['name']][m['name']][key] = value
         except Exception as e:

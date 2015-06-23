@@ -49,18 +49,37 @@ class ModuleHandler(object):
         # Get first word from the argument string, save it and strip it
         command = event.arguments[0].partition(' ')[0]
         event.arguments[0] = event.arguments[0].partition(' ')[2]
+        # Save the command into module_data dictionary
         module_data['command'] = command
+        # Determine response destination
+        destination = event.target if is_public != False else event.source
 
         if command:
             command.lower()
             for cmd in self._command_list:
                 if command == cmd:
+                    module_settings = self._determine_mod_settings(is_public, connection.server, 
+                                                                   destination, self._command_list[cmd])
+                    if module_settings is not None:
+                        module_data['settings'] = module_settings
+
                     try:
                         self._loaded_modules[self._command_list[cmd]].on_command(module_data, 
                                                                       connection, event, is_public)
                     except Exception as e:
                         print('[ModuleHandler] Module {} caused an exception: {}'
                               .format(self._command_list[cmd], e), file=sys.stderr)
+
+    def _determine_mod_settings(self, is_public, server, channel, module):
+        if is_public == False and module in self._mod_settings[server]:
+            return self._mod_settings[server][module]
+        elif is_public == True:
+            if module in self._mod_settings[server][channel]:
+                return self._mod_settings[server][channel][module]
+            elif module in self._mod_settings[server]:
+                 return self._mod_settings[server][module]
+
+        return None
 
     def _get_class_name(self, mod_name):
         class_name = ''
