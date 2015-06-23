@@ -31,7 +31,7 @@ class Wiki(module_base.ModuleBase):
         # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
         parsed = json.loads(req.read().decode("utf-8"))
 
-         if parsed[1] and parsed[2] and parsed[3]:
+        if parsed[1] and parsed[2] and parsed[3]:
             article = parsed[1][0]
             shortinfo = parsed[2][0] if parsed[2][0] != "" else "No short description available"
             url = parsed[3][0]
