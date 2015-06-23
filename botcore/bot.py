@@ -51,7 +51,7 @@ class Bot(object):
 
         try:
             self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
-        except irc.client.ServerConnectionError as e: 
+        except client.ServerConnectionError as e: 
             print(e)
             self._server_list[address]['@@s'].reconnect()
            
