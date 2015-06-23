@@ -8,7 +8,10 @@ import os
 
 class ModuleHandler(object):
 
-    def __init__(self):
+    def __init__(self, config_file):
+        # Config file name
+        self._config_file = config_file
+        # List of available commands
         self._command_list = dict()
         # Define directory with modules
         self._modules_path = os.path.join(os.path.dirname(os.pardir), 'botmodules')
@@ -84,7 +87,7 @@ class ModuleHandler(object):
             loaded_class = getattr(loaded_mod, class_name)
 
             # Create an instance of the class
-            self._loaded_modules[mod_name] = loaded_class()
+            self._loaded_modules[mod_name] = loaded_class(self._config_file)
 
             commands = self._loaded_modules[mod_name].get_commands()
             

@@ -14,12 +14,13 @@ import re
 
 class Currency(module_base.ModuleBase):
 
-    def __init__(self):
+    def __init__(self, config_file):
         self._last_update = time.time()
         self._currency_data = dict()
         self._args_regex = re.compile('^[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+([a-zA-Z]{3})[ ]+(in|to)*[ ]*([a-zA-Z]{3}).*$')
         self._CNB_regex = re.compile('.*?\|.*?\|([0-9]+)\|([A-Z]{3})\|([0-9,.]+).*')
         self._do_update()
+        print(config_file)
 
     def get_commands(self):
         return ['curr', 'currency', 'currency-list', 'curr-list']
