@@ -77,7 +77,7 @@ class ConfigParser(object):
         else:
             return channel['cmdprefix']
 
-    def get_mod_settings(self):
+    def get_all_mod_settings(self):
         mod_settings = dict()
  
         try:

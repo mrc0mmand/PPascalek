@@ -9,7 +9,7 @@ from urllib.error import URLError
 
 class Jisho(module_base.ModuleBase):
 
-    def __init__(self):
+    def __init__(self, settings):
         pass
 
     def get_commands(self):

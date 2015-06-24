@@ -12,6 +12,9 @@ class ModuleHandler(object):
     def __init__(self, config_file):
         # Config file name
         self._config_file = config_file
+        # Get module settings
+        self._cp = config_parser.ConfigParser(config_file)
+        self._mod_settings = self._cp.get_all_mod_settings()
         # List of available commands
         self._command_list = dict()
         # Define directory with modules
@@ -21,9 +24,6 @@ class ModuleHandler(object):
         # Initialize empty dictionary for loaded modules
         self._loaded_modules = dict()
         self._load_all_modules()
-        # Get module settings
-        self._cp = config_parser.ConfigParser(config_file)
-        self._mod_settings = self._cp.get_mod_settings()
 
     def handle_privmsg(self, connection, event):
         for module in self._loaded_modules:
@@ -51,18 +51,11 @@ class ModuleHandler(object):
         event.arguments[0] = event.arguments[0].partition(' ')[2]
         # Save the command into module_data dictionary
         module_data['command'] = command
-        # Determine response destination
-        destination = event.target if is_public != False else event.source
 
         if command:
             command.lower()
             for cmd in self._command_list:
                 if command == cmd:
-                    module_settings = self._determine_mod_settings(is_public, connection.server, 
-                                                                   destination, self._command_list[cmd])
-                    if module_settings is not None:
-                        module_data['settings'] = module_settings
-
                     try:
                         self._loaded_modules[self._command_list[cmd]].on_command(module_data, 
                                                                       connection, event, is_public)
@@ -70,16 +63,24 @@ class ModuleHandler(object):
                         print('[ModuleHandler] Module {} caused an exception: {}'
                               .format(self._command_list[cmd], e), file=sys.stderr)
 
-    def _determine_mod_settings(self, is_public, server, channel, module):
-        if is_public == False and module in self._mod_settings[server]:
-            return self._mod_settings[server][module]
-        elif is_public == True:
-            if module in self._mod_settings[server][channel]:
-                return self._mod_settings[server][channel][module]
-            elif module in self._mod_settings[server]:
-                 return self._mod_settings[server][module]
+    def _get_mod_settings(self, module):
+        mod_settings = dict()
 
-        return None
+        for server, sdata in self._mod_settings.items():
+            mod_settings[server] = dict()
+
+            if module in sdata:
+                mod_settings[server]['@global'] = self._mod_settings[server][module]
+
+            for channel, cdata in sdata.items():
+                if module in cdata:
+                    if server not in mod_settings:
+                        mod_settings[server] = dict()
+
+                    mod_settings[server][channel] = dict()
+                    mod_settings[server][channel] = self._mod_settings[server][channel][module]
+
+        return mod_settings
 
     def _get_class_name(self, mod_name):
         class_name = ''
@@ -113,8 +114,9 @@ class ModuleHandler(object):
             class_name = self._get_class_name(mod_name)
             loaded_class = getattr(loaded_mod, class_name)
 
+            settings = self._get_mod_settings(mod_name)
             # Create an instance of the class
-            self._loaded_modules[mod_name] = loaded_class()
+            self._loaded_modules[mod_name] = loaded_class(settings)
 
             commands = self._loaded_modules[mod_name].get_commands()
             

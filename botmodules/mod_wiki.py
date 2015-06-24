@@ -9,7 +9,7 @@ from pprint import pprint
 
 # TODO: Different language wikipedias
 class Wiki(module_base.ModuleBase):
-    def __init__(self):
+    def __init__(self, settings):
         pass 
 
     def get_commands(self):
