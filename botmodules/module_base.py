@@ -33,8 +33,18 @@ class ModuleBase(metaclass=ABCMeta):
                 connection.privmsg(destination, message)
             except Exception as e:
                 print("Exception {0}" .format(str(e)))
-            
-        
+
+    def get_curr_settings(self, connection, event, is_public, settings):
+        if is_public == False and '@global' in settings[connection.server]:
+            return settings[connection.server]['@global']
+        elif is_public == True:
+            if event.target in settings[connection.server]:
+                return settings[connection.server][event.target]
+            elif '@global' in settings[connection.server]:
+                return settings[connection.server]['@global']
+
+        return None
+
     def on_privmsg(self, connection, event):
         pass
 
