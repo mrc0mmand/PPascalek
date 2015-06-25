@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from . import module_base
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta
 import sqlite3
 import sys
 import re
@@ -23,7 +23,7 @@ class Remind(module_base.ModuleBase):
         dt = datetime.now()
 
         if re.match('^@.+$', data):
-            # Current date/time
+            # Specific date/time
             m = re.search(self._prefix_regex, data)
             if m:
                 r = m.groupdict()
@@ -33,11 +33,10 @@ class Remind(module_base.ModuleBase):
                         r[key] = getattr(dt, key)
                     else:
                         r[key] = int(value)
- 
+
                 try:
                     return datetime(r['year'], r['month'], r['day'], r['hour'], r['minute'])
                 except Exception as e:
-                    print(e)
                     return None
 
         else:
@@ -66,8 +65,27 @@ class Remind(module_base.ModuleBase):
                     else:
                         return dt + td
                 except Exception as e:
-                    print('Exception: ', e)
                     return None
+
+        return None
+
+    def _check_time(self, dt):
+        dtnow = datetime.now()
+
+        # Remind time should be in range
+        # past < dtnow < dt <= dtnow + 1 year
+        if dt.timestamp() <= dtnow.timestamp() or \
+           dt.timestamp() > dtnow.replace(year=dtnow.year + 1).timestamp():
+            return 1
+        else:
+            return 0
+    
+    def _process_time(self, data):
+        dt = self._parse_time(data)
+
+        if dt is not None:
+            if self._check_time(dt) == 0:
+                return dt
 
         return None
 
@@ -75,7 +93,7 @@ class Remind(module_base.ModuleBase):
         m = re.search(self._args_regex, event.arguments[0])
         
         if m:
-            dt = self._parse_time(m.group(1))
+            dt = self._process_time(m.group(1))
             self.send_msg(connection, event, is_public, 'Time section: {} | Message: {}' .format(m.group(1), m.group(2)))
             
             self.send_msg(connection, event, is_public, "{}" .format(dt if dt is not None else "Invalid date/time"))    
