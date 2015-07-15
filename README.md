@@ -5,6 +5,7 @@ A light-weight module-based IRC bot written in Python3 using the [irc](https://b
 ## Depencies
 * Python >= 3.2
 * [irc](https://bitbucket.org/jaraco/irc/) >= 12.2
+
 _Packages that are included in the default python3 environment are not included in this list._
 
 ## Installation
