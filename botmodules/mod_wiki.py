@@ -10,7 +10,10 @@ from pprint import pprint
 # TODO: Different language wikipedias
 class Wiki(module_base.ModuleBase):
     def __init__(self, settings):
-        pass 
+        # language codes used for determing which wikipedia to grab the article from, defaults to english
+        # currently only contains wikipedias that have above 100,000 articles
+        self.language_codes = ["en","sv","de","nl","fr","war","ru","ceb","it","es","vi","pl","ja","pt","zh","uk","ca","fa","sh","no","ar","fi","id","ro","cs","hu","sr","ko","ms","tr","min","eo","kk","eu","da","sk","bg","he","hy","lt","hr","sl","et","uz","gl","nn","vo","la","simple","el","hi"] 
+
 
     def get_commands(self):
         return ['wiki', 'wikipedia']
@@ -22,11 +25,11 @@ class Wiki(module_base.ModuleBase):
                   "action=opensearch&format=json&search={0}"
                   .format(urllib.request.quote(word)), None, 5) 
         except URLError as e:
-            return "[EnWiki] Nothing found." 
+            return "[Wiki] Nothing found." 
         except Exception as e:
-            print('[EnWiki] Error sending request to wikipedia\'s API. Reason: {0}'
+            print('[Wiki] Error sending request to wikipedia\'s API. Reason: {0}'
                   .format(str(e)), file=sys.stderr)
-            return "[EnWiki] Unknown error."
+            return "[Wiki] Unknown error."
 
         # .read() vrací nějaký mrdkobajty, proto decode utf-8, zasranej python3
         parsed = json.loads(req.read().decode("utf-8"))
@@ -35,9 +38,9 @@ class Wiki(module_base.ModuleBase):
             article = parsed[1][0]
             shortinfo = parsed[2][0] if parsed[2][0] != "" else "No short description available"
             url = parsed[3][0]
-            return "[EnWiki] {0}: {1} ({2})".format(article, shortinfo, url)
+            return "[Wiki] {0}: {1} ({2})".format(article, shortinfo, url)
         else:
-            return "[EnWiki] Nothing found."
+            return "[Wiki] Nothing found."
 
     def on_command(self, module_data, connection, event, is_public):
         args = event.arguments[0] # change this when an argument system gets implemented
