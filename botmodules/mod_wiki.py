@@ -13,7 +13,7 @@ class Wiki(module_base.ModuleBase):
         # language codes used for determing which wikipedia to grab the article from, defaults to english
         # currently only contains wikipedias that have above 100,000 articles
         language_codes = ["en","sv","de","nl","fr","war","ru","ceb","it","es","vi","pl","ja","pt","zh","uk","ca","fa","sh","no","ar","fi","id","ro","cs","hu","sr","ko","ms","tr","min","eo","kk","eu","da","sk","bg","he","hy","lt","hr","sl","et","uz","gl","nn","vo","la","simple","el","hi"] 
-        self.regex = re.compile("^((en|sv|de|simple|" + "|".join(language_codes) + "|)\s)?(.*)$") # jsem retard no, nasrat :^)
+        self.regex = re.compile("^((" + "|".join(language_codes) + "|)\s)?(.*)$") # jsem retard no, nasrat :^)
         
     def get_commands(self):
         return ['wiki', 'wikipedia']
