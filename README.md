@@ -10,10 +10,12 @@ _Packages that are included in the default python3 environment are not included 
 
 ## Installation
 Assuming you have [pip](https://pypi.python.org/pypi/pip) installed:
-```pip3 install irc
+```
+pip3 install irc
 git clone https://github.com/mrc0mmand/PPascalek.git
 cd PPascalek
-cp config.json.example config.json```
+cp config.json.example config.json
+```
 Edit the `config.json` file accordingly and start the bot using the `python3 main.py` command.
 
 
