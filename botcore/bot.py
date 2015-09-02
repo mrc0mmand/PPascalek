@@ -16,7 +16,7 @@ class Bot(object):
         self._client = client.Reactor()
         # Events: https://bitbucket.org/jaraco/irc/src/9e4fb0ce922398292ed4c0cfd3822e4fe19a940d/irc/events.py?at=default#cl-177
         self._client.add_global_handler('welcome', self._on_connect)  
-        self._client.add_global_handler('disconnect', self._on_disconnect)  
+        self._client.add_global_handler('disconnect', self._on_disconnect)
         self._client.add_global_handler('nicknameinuse', self._on_nicknameinuse)
         self._client.add_global_handler('pubmsg', self._on_privmsg)
         self._client.add_global_handler('privmsg', self._on_privmsg)
@@ -45,6 +45,8 @@ class Bot(object):
                 # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
                 self._server_list[i]["@@s"].disconnect(s)
 
+        sys.exit(0)
+
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
         self._server_list[address]['@@s'] = self._client.server()
@@ -68,13 +70,13 @@ class Bot(object):
     def _on_disconnect(self, connection, event):
         print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
         
-        if self._exitSignal == False:
-            # We got disconnected from the server (timeout, etc.)
-            #self._server_list[event.source.lower()]['@@s'].reconnect()
-            sys.exit(0)
-        else:
-            # Got exit signal
-            sys.exit(0)
+        #if self._exitSignal == False:
+        #    # We got disconnected from the server (timeout, etc.)
+        #    #self._server_list[event.source.lower()]['@@s'].reconnect()
+        #    sys.exit(0)
+        #else:
+        #    # Got exit signal
+        #    sys.exit(0)
 
     def _on_nicknameinuse(self, connection, event):
         if(self._nickChangeCounter == 3):
