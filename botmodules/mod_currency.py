@@ -5,7 +5,7 @@
 from . import module_base
 import urllib.request
 import time
-import jsonn
+import json
 import sys
 import re
 
