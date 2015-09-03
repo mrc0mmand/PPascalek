@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+import sys
 from abc import ABCMeta, abstractmethod
 from botutils import utils
 
@@ -8,9 +9,12 @@ class ModuleBase(metaclass=ABCMeta):
 
     def __init__(self, settings):
         pass
-
+        
     def get_commands(self):
-        pass
+        pass    
+
+    def get_name(self):
+        return self.__class__.__name__
 
     def send_msg(self, connection, event, is_public, message):
         destination = event.target if is_public != False else event.source
@@ -26,6 +30,7 @@ class ModuleBase(metaclass=ABCMeta):
             for i in data:
                 try:
                     connection.privmsg(destination, i.decode('utf-8'))
+                    print("[{0}] Sending to {1}: {2}".format(self.get_name(), destination, i.decode('utf-8')))
                 except Exception as e:
                     print("Exception {0}" .format(str(e)))
         else:

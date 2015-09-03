@@ -25,20 +25,20 @@ class Wiki(module_base.ModuleBase):
                   "action=opensearch&format=json&search={1}"
                   .format(urllib.request.quote(langcode), urllib.request.quote(word)), None, 5)  # dunno why I am quoting the langcode, but just to be sure or someshit, I am autistic so what would you expect :^)
         except URLError as e:
-            return "[Wiki] Nothing found." 
+            return "[{}] Nothing found.".format(self.get_name())
         except Exception as e:
-            print('[Wiki] Error sending request to wikipedia\'s API. Reason: {0}'
-                  .format(str(e)), file=sys.stderr)
-            return "[Wiki] Unknown error."
+            print('[{1}] Error sending request to wikipedia\'s API. Reason: {0}'
+                  .format(str(e), self.get_name()), file=sys.stderr)
+            return "[{}] Unknown error.".format(self.get_name())
 
         parsed = json.loads(req.read().decode("utf-8"))
         if parsed[1] and parsed[2] and parsed[3]:
             article = parsed[1][0]
             shortinfo = parsed[2][0] if parsed[2][0] != "" else "No short description available."
             url = parsed[3][0]
-            return "[Wiki] {0}: {1} ({2})".format(article, shortinfo, url)
+            return "[{3}] {0}: {1} ({2})".format(article, shortinfo, url, self.get_name())
         else:
-            return "[Wiki] Nothing found."
+            return "[{}] Nothing found.".format(self.get_name())
 
     def on_command(self, module_data, connection, event, is_public):
         args     = event.arguments[0]
@@ -49,4 +49,4 @@ class Wiki(module_base.ModuleBase):
             word        = match.group(3)
             self.send_msg(connection, event, is_public, self._get_wiki_result(langcode, word))
         else:
-            self.send_msg(connection, event, is_public, "[Wiki] Usage: ?wiki [langcode] <query>") # [] jsou optional argumenty v manualech, right? I hope so
+            self.send_msg(connection, event, is_public, "[{}] Usage: ?wiki [langcode] <query>".format(self.get_name())) # [] jsou optional argumenty v manualech, right? I hope so
