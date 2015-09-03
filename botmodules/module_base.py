@@ -30,12 +30,13 @@ class ModuleBase(metaclass=ABCMeta):
             for i in data:
                 try:
                     connection.privmsg(destination, i.decode('utf-8'))
-                    print("[{0}] Sending to {1}: {2}".format(self.get_name(), destination, i.decode('utf-8')))
+                    print("[{0}] Sending split output to {1}: {2}".format(self.get_name(), destination, i.decode('utf-8')))
                 except Exception as e:
                     print("Exception {0}" .format(str(e)))
         else:
             try:
                 connection.privmsg(destination, message)
+                print("[{0}] Sending output to {1}: {2}".format(self.get_name(), destination, message))
             except Exception as e:
                 print("Exception {0}" .format(str(e)))
 
