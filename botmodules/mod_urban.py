@@ -31,7 +31,7 @@ class Urban(module_base.ModuleBase):
         return "[{0}]: {1}".format(parsed[index]["term"], parsed[index]["definition"]) \
                if len(parsed[index]["definition"]) < 150 \
                else "[{0}]: {1}… (more at {2})" .format(parsed[index]["term"], \
-                    parsed[index]["definition"][:-150], "http://urbandictionary.com/define.php?term={0}"
+                    parsed[index]["definition"][:150], "http://urbandictionary.com/define.php?term={0}"
                     .format(urllib.request.quote(word))) # url je rozbitý
 
     def on_command(self, module_data, connection, event, is_public):
