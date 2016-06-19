@@ -52,7 +52,7 @@ class Currency(module_base.ModuleBase):
         for line in req:
             m = re.search(self._CNB_regex, str(line))
             if m:
-                self._currency_data[m.group(2)] = dict(amount=int(m.group(1))
+                self._currency_data[m.group(2)] = dict(amount=int(m.group(1)),
                         rate=float(m.group(3).replace(',', '.')))
 
         return 0
