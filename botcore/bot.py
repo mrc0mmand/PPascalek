@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
 from irc import client
 from botutils import config_parser
 from bothandlers import module_handler
@@ -45,7 +46,8 @@ class Bot(object):
                 # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
                 self._server_list[i]["@@s"].disconnect(s)
 
-        sys.exit(0)
+        # Beautiful workaround for killing all remaining threads
+        os._exit(0)
 
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()

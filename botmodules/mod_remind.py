@@ -3,6 +3,7 @@
 
 from . import module_base
 from datetime import datetime, timedelta
+import threading
 import sqlite3
 import sys
 import re
@@ -26,6 +27,16 @@ class Remind(module_base.ModuleBase):
                                         "(?P<year>[0-9]{4})[ ]+)?"
                                         "(?P<hour>[0-9]{1,2})\:"
                                         "(?P<minute>[0-9]{1,2})$")
+        self._queue_lock = threading.Lock()
+        self._queue = list()
+        # Start Timer
+        self._timer = threading.Timer(1, self._print_delayed)
+        self._timer.start()
+
+    def __del__(self):
+        print("__del__ called")
+        self._timer.cancel()
+        self._queue_lock.release()
 
     def get_commands(self):
         return ["remind"]
@@ -102,16 +113,47 @@ class Remind(module_base.ModuleBase):
 
         return None
 
+    def _print_delayed(self):
+        # Not sure how safe this solution is
+        ts = datetime.now().timestamp()
+        new_queue = list()
+        self._queue_lock.acquire()
+        for item in self._queue:
+            if int(item["time"]) == int(ts):
+                self.send_msg(item["conn"], item["event"], item["is_pub"],
+                                item["msg"])
+            else:
+                new_queue.append(item)
+
+        self._queue = new_queue
+        self._queue_lock.release()
+        self._timer = threading.Timer(1, self._print_delayed)
+        self._timer.start()
+
     def on_command(self, module_data, connection, event, is_public):
         m = re.search(self._args_regex, event.arguments[0])
+        user = event.source.split('!', 1)[0]
 
         if m:
             dt = self._process_time(m.group(1))
-            self.send_msg(connection, event, is_public, "Time section: {} "
-                            "| Message: {}".format(m.group(1), m.group(2)))
-
-            self.send_msg(connection, event, is_public, "{}".format(dt if dt is
-                            not None else "Invalid date/time"))
+            if dt is not None:
+                self._queue_lock.acquire()
+                item =  {
+                    "time" : dt.timestamp(),
+                    "conn" : connection,
+                    "event" : event,
+                    "is_pub" : is_public,
+                    "msg" : user + ": " + m.group(2)
+                    }
+                self._queue.append(item)
+                self._queue_lock.release()
+                self.send_msg(connection, event, is_public, "{}: Saved! "
+                    "Reminder time: {}".format(user,
+                                            dt.strftime("%d.%m.%y %H:%M:%S")))
+            else:
+                self.send_msg(connection, event, is_public, "{}: Invalid "
+                    "date/time (0 < time < 1 year)".format(user))
         else:
-            self.send_msg(connection, event, is_public, "nope")
+            self.send_msg(connection, event, is_public, "{}: Invalid format"
+                    .format(user))
 
