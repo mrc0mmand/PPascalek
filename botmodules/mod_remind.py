@@ -26,7 +26,8 @@ class Remind(module_base.ModuleBase):
                                         "(?P<month>[0-9]{1,2})\."
                                         "(?P<year>[0-9]{4})[ ]+)?"
                                         "(?P<hour>[0-9]{1,2})\:"
-                                        "(?P<minute>[0-9]{1,2})$")
+                                        "(?P<minute>[0-9]{1,2})"
+                                        "(\:(?P<second>[0-9]{1,2}))?$")
         self._queue_lock = threading.Lock()
         self._queue = list()
         # Start Timer
@@ -59,7 +60,7 @@ class Remind(module_base.ModuleBase):
 
                 try:
                     return datetime(r["year"], r["month"], r["day"], r["hour"],
-                                    r["minute"])
+                                    r["minute"], r["second"])
                 except Exception as e:
                     return None
 
