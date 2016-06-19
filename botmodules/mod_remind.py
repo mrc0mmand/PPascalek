@@ -34,11 +34,6 @@ class Remind(module_base.ModuleBase):
         self._timer = threading.Timer(1, self._print_delayed)
         self._timer.start()
 
-    def __del__(self):
-        print("__del__ called")
-        self._timer.cancel()
-        self._queue_lock.release()
-
     def get_commands(self):
         return ["remind"]
 
