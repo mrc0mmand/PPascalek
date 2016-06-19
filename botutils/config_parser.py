@@ -23,86 +23,99 @@ class ConfigParser(object):
             raise
 
     def _basic_config_check(self):
-        if 'servers' not in self._content:
-            raise ValueError('Missing \'servers\' section in the config file.')
+        if "servers" not in self._content:
+            raise ValueError("Missing 'servers' section in the config file.")
 
-        for server in self._content['servers']:
-            if 'nickname' not in server:
-                raise ValueError('Missing \'nickname\' attribute in \'servers\' section.')
-            if 'address' not in server:
-                raise ValueError('Missing \'address\' attribute in \'servers\' section.')
-            if 'cmdprefix' not in server:
-                raise ValueError('Missing \'cmdprefix\' attribute in \'servers\' section.')
-            if 'channels' in server:
-                for channel in server['channels']:
-                    if 'name' not in channel:
-                        raise ValueError('Missing \'name\' attribute in \'channels\' section.')
+        for server in self._content["servers"]:
+            if "nickname" not in server:
+                raise ValueError("Missing 'nickname' attribute in 'servers' "
+                                 "section.")
+            if "address" not in server:
+                raise ValueError("Missing 'address' attribute in 'servers' "
+                                 "section.")
+            if "cmdprefix" not in server:
+                raise ValueError("Missing 'cmdprefix' attribute in 'servers' "
+                                 "section.")
+            if "channels" in server:
+                for channel in server["channels"]:
+                    if "name" not in channel:
+                        raise ValueError("Missing 'name' attribute in "
+                                         "'channels' section.")
 
     def get_servers(self):
-        return self._content['servers']
+        return self._content["servers"]
 
     def get_server_nickname(self, server):
-        return server['nickname']
+        return server["nickname"]
 
     def get_server_address(self, server):
-        return server['address']
+        return server["address"]
 
     def get_server_port(self, server):
-        if 'port' not in server:
+        if "port" not in server:
             return 6667
         else:
-            return server['port']
+            return server["port"]
 
     def get_server_cmdprefix(self, server):
-        return server['cmdprefix']
+        return server["cmdprefix"]
 
     def get_server_channels(self, server):
-        if 'channels' not in server:
+        if "channels" not in server:
             return []
         else:
-            return server['channels']
+            return server["channels"]
 
     def get_channel_name(self, channel):
-        return channel['name']
+        return channel["name"]
 
     def get_channel_password(self, channel):
-        if 'pass' not in channel:
-            return ''
+        if "pass" not in channel:
+            return ""
         else:
-            return channel['pass']
+            return channel["pass"]
 
-    def get_channel_cmdprefix(self, channel, default=''):
-        if 'cmdprefix' not in channel:
+    def get_channel_cmdprefix(self, channel, default=""):
+        if "cmdprefix" not in channel:
             return default
         else:
-            return channel['cmdprefix']
+            return channel["cmdprefix"]
 
     def get_all_mod_settings(self):
         mod_settings = dict()
 
         try:
-            for s in self._content['servers']:
-                if 'mod_settings' in s:
+            for s in self._content["servers"]:
+                if "mod_settings" in s:
                     # Load global module settings
-                    mod_settings[s['address']] = dict()
-                    for m in s['mod_settings']:
-                        mod_settings[s['address']][m['name']] = m
+                    mod_settings[s["address"]] = dict()
+                    for m in s["mod_settings"]:
+                        mod_settings[s["address"]][m["name"]] = m
 
-                if 'channels' in s:
-                    for c in s['channels']:
-                        if 'mod_settings' in c:
-                            # Overwrite global module settings with channel specific ones
-                            mod_settings[s['address']][c['name']] = dict()
+                if "channels" in s:
+                    for c in s["channels"]:
+                        if "mod_settings" in c:
+                            # Overwrite global module settings with channel
+                            # specific ones
+                            mod_settings[s["address"]][c["name"]] = dict()
 
-                            for m in c['mod_settings']:
-                                if m['name'] in mod_settings[s['address']]:
-                                    mod_settings[s['address']][c['name']][m['name']] = copy.deepcopy(mod_settings[s['address']][m['name']])
+                            for m in c["mod_settings"]:
+                                # Server address
+                                sa = s["address"]
+                                # Channel name
+                                cn = c["name"]
+                                # Module name
+                                mn = m["name"]
+                                if m["name"] in mod_settings[s["address"]]:
+                                    mod_settings[sa][cn][mn] = copy.deepcopy(
+                                            mod_settings[sa][mn])
                                 else:
-                                    mod_settings[s['address']][c['name']][m['name']] = dict()
+                                    mod_settings[sa][cn][mn] = dict()
 
                                 for key, value in m.items():
-                                    mod_settings[s['address']][c['name']][m['name']][key] = value
+                                    mod_settings[sa][cn][mn][key] = value
         except Exception as e:
-            print('[ConfigParser] Couldn\'t get module settings: {}' .format(e), file=sys.stderr)
+            print("[ConfigParser] Couldn't get module settings: {}"
+                    .format(e), file=sys.stderr)
 
         return mod_settings
