@@ -13,7 +13,8 @@ class Remind(module_base.ModuleBase):
         self._settings = settings
         self._args_regex = re.compile("^[ ]*(\@?[0-9].*?)[ ]*\-[ ]*"
                                       "(\S.*?)[ ]*$")
-        self._interval_regex = re.compile("^((?P<hr>[0-9]+)\:)?(?P<min>[0-9]+)"
+        self._interval_regex = re.compile("^((?P<hr>[0-9]+)\:)?"
+                                          "(?P<min>[0-9]+)"
                                           "(\:(?P<sec>[0-9]{1,2}))?$")
         self._named_interval_regex = re.compile("^((?P<w>[0-9]+)(W|w))?[ ]*"
                                                 "((?P<d>[0-9]+)(D|d))?[ ]*"
@@ -37,7 +38,8 @@ class Remind(module_base.ModuleBase):
             m = re.search(self._prefix_regex, data)
             if m:
                 r = m.groupdict()
-                # Set default values for missing one and convert existing ones to int
+                # Set default values for missing one and
+                # convert existing ones to int
                 for key, value in r.items():
                     if value is None:
                         r[key] = getattr(dt, key)
