@@ -79,7 +79,7 @@ class ConfigParser(object):
 
     def get_all_mod_settings(self):
         mod_settings = dict()
- 
+
         try:
             for s in self._content['servers']:
                 if 'mod_settings' in s:

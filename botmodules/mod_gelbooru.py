@@ -10,14 +10,14 @@ from pprint import pprint
 # TODO: Different language wikipedias
 class Gelbooru(module_base.ModuleBase):
     def __init__(self, settings):
-    	pass
-    	
+        pass
+
     def get_commands(self):
         return ['gb', 'gelbooru']
 
     def _get_wiki_result(self, langcode, word):
         try:
-            req = urllib.request.urlopen("http://gelbooru.com/index.php", "page=dapi&s=post&q=index&limit=20&tags={0}".format(urllib.request.quote(tags)), None, 5)  
+            req = urllib.request.urlopen("http://gelbooru.com/index.php", "page=dapi&s=post&q=index&limit=20&tags={0}".format(urllib.request.quote(tags)), None, 5)
         except URLError as e:
             return "[{}] Nothing found.".format(self.get_name())
         except Exception as e:

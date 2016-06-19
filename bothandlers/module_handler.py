@@ -40,7 +40,7 @@ class ModuleHandler(object):
     def handle_quit(self, connection, event):
         for module in self._loaded_modules:
             self._loaded_modules[module].on_quit(connection, event)
-    
+
     def handle_nick(self, connection, event):
         for module in self._loaded_modules:
             self._loaded_modules[module].on_nick(connection, event)
@@ -57,7 +57,7 @@ class ModuleHandler(object):
             for cmd in self._command_list:
                 if command == cmd:
                     try:
-                        self._loaded_modules[self._command_list[cmd]].on_command(module_data, 
+                        self._loaded_modules[self._command_list[cmd]].on_command(module_data,
                                                                       connection, event, is_public)
                     except Exception as e:
                         print('[ModuleHandler] Module {} caused an exception: {}'
@@ -86,7 +86,7 @@ class ModuleHandler(object):
         class_name = ''
 
         # Split module name and skip first word (mod)
-        words = mod_name.split('_')[1:] 
+        words = mod_name.split('_')[1:]
 
         # Capitalise the first letter of each word and add it to final string
         for word in words:
@@ -105,7 +105,7 @@ class ModuleHandler(object):
             if not mod_name.startswith("mod_"):
                 return
 
-            print('[ModuleHandler] Loading module \'{}\' [{}]' 
+            print('[ModuleHandler] Loading module \'{}\' [{}]'
                   .format(mod_name, self._modules_path + '.' + mod_name))
             # Import it
             loaded_mod = __import__(self._modules_path + '.' + mod_name, fromlist=[mod_name])
@@ -119,7 +119,7 @@ class ModuleHandler(object):
             self._loaded_modules[mod_name] = loaded_class(settings)
 
             commands = self._loaded_modules[mod_name].get_commands()
-            
+
             if commands is None:
                 print("[WARNING] Module {} didn't register any commands" .format(mod_name))
             else:
@@ -129,7 +129,7 @@ class ModuleHandler(object):
 
     def _load_all_modules(self):
         print('Loading modules...')
-        
+
         for loader, mod_name, ispkg in self._modules_list:
             self.load_module(mod_name)
 

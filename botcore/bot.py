@@ -15,7 +15,7 @@ class Bot(object):
         self._config_file = config_file
         self._client = client.Reactor()
         # Events: https://bitbucket.org/jaraco/irc/src/9e4fb0ce922398292ed4c0cfd3822e4fe19a940d/irc/events.py?at=default#cl-177
-        self._client.add_global_handler('welcome', self._on_connect)  
+        self._client.add_global_handler('welcome', self._on_connect)
         self._client.add_global_handler('disconnect', self._on_disconnect)
         self._client.add_global_handler('nicknameinuse', self._on_nicknameinuse)
         self._client.add_global_handler('pubmsg', self._on_privmsg)
@@ -41,7 +41,7 @@ class Bot(object):
         # Clean exit
         if self._exitSignal != False:
             for i in self._server_list:
-                # .quit(s) to shodi na interrupted system call, ale disconnect funguje 
+                # .quit(s) to shodi na interrupted system call, ale disconnect funguje
                 # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
                 self._server_list[i]["@@s"].disconnect(s)
 
@@ -53,10 +53,10 @@ class Bot(object):
 
         try:
             self._server_list[address]['@@s'].connect(address, port, nickname, None, nickname, nickname)
-        except client.ServerConnectionError as e: 
+        except client.ServerConnectionError as e:
             print(e)
             self._server_list[address]['@@s'].reconnect()
-           
+
         self._server_list[address]['@@s_cmdprefix'] = scmdprefix
 
     def _on_connect(self, connection, event):
@@ -69,7 +69,7 @@ class Bot(object):
 
     def _on_disconnect(self, connection, event):
         print('[{}] Disconnected from {}' .format(event.type.upper(), event.source))
-        
+
         #if self._exitSignal == False:
         #    # We got disconnected from the server (timeout, etc.)
         #    #self._server_list[event.source.lower()]['@@s'].reconnect()
@@ -80,26 +80,26 @@ class Bot(object):
 
     def _on_nicknameinuse(self, connection, event):
         if(self._nickChangeCounter == 3):
-            print('[{}] Couldn\'t find a free nickname, disconnecting from {}' 
+            print('[{}] Couldn\'t find a free nickname, disconnecting from {}'
                   .format(event.type.upper(), event.source))
             connection.disconnect()
         else:
-            self._nickChangeCounter =+ 1 
+            self._nickChangeCounter =+ 1
             current_nick = connection.get_nickname()
-            print('[{}] Nickname {} is already taken, changing it to {}' 
-                  .format(event.type.upper(), current_nick, current_nick + 
+            print('[{}] Nickname {} is already taken, changing it to {}'
+                  .format(event.type.upper(), current_nick, current_nick +
                   ("_" * self._nickChangeCounter)))
-            connection.nick(current_nick + ('_' * self._nickChangeCounter))     
+            connection.nick(current_nick + ('_' * self._nickChangeCounter))
 
     def _on_privmsg(self, connection, event):
-        print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
+        print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target,
                                          event.source.split('!', 1)[0], event.arguments[0]))
         # Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
             pass
-       
+
         # Command prefix & actual command (the latter is added in module_handler)
-        module_data = dict() 
+        module_data = dict()
         # Event target - channel or nickname (converted to lowercase)
         target = event.target.lower()
         # Address of the irc server
@@ -137,7 +137,7 @@ class Bot(object):
             self._module_handler.handle_privmsg(connection, event)
 
     def _on_pubmsg(self, connection, event):
-        print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target, 
+        print('[{}] {}: <{}> {}' .format(event.type.upper(), event.target,
                                          event.source.split('!', 1)[0], event.arguments[0]))
         # Ignore our own messages
         if event.source.lower() == connection.get_nickname().lower():
@@ -164,7 +164,7 @@ class Bot(object):
         self._module_handler.handle_quit(connection, event)
 
     def _on_nick(self, connection, event):
-        print('[{}] {} is now known as {}' .format(event.type.upper(), event.source.split('!', 1)[0], 
+        print('[{}] {} is now known as {}' .format(event.type.upper(), event.source.split('!', 1)[0],
                                                    event.target))
         self._module_handler.handle_nick(connection, event)
 

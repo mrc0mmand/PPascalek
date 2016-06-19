@@ -9,9 +9,9 @@ class ModuleBase(metaclass=ABCMeta):
 
     def __init__(self, settings):
         pass
-        
+
     def get_commands(self):
-        pass    
+        pass
 
     def get_name(self):
         return self.__class__.__name__
