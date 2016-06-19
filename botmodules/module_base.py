@@ -63,6 +63,9 @@ class ModuleBase(metaclass=ABCMeta):
     def on_command(self, module_data, connection, event, is_public):
         pass
 
+    def on_help(self, module_data, connection, event, is_public):
+        pass
+
     def on_join(self, connection, event):
         pass
 

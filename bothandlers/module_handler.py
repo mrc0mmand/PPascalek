@@ -6,6 +6,7 @@ import pkgutil
 import importlib
 import sys
 import os
+import re
 
 class ModuleHandler(object):
 
@@ -50,17 +51,29 @@ class ModuleHandler(object):
         # Get first word from the argument string, save it and strip it
         command = event.arguments[0].partition(' ')[0]
         event.arguments[0] = event.arguments[0].partition(' ')[2]
-        # Save the command into module_data dictionary
-        module_data["command"] = command
 
         if command:
             command.lower()
+            m = re.search("^(.+)\-help$", command)
+            if m:
+                help_mode = True
+                command = m.group(1)
+            else:
+                help_mode = False
+
+            # Save the command into module_data dictionary
+            module_data["command"] = command
+
             for cmd in self._command_list:
                 if command == cmd:
                     try:
                         listcmd = self._command_list[cmd]
-                        self._loaded_modules[listcmd].on_command(module_data,
-                                            connection, event, is_public)
+                        if help_mode:
+                            self._loaded_modules[listcmd].on_help(module_data,
+                                    connection, event, is_public)
+                        else:
+                            self._loaded_modules[listcmd].on_command(
+                                    module_data, connection, event, is_public)
                     except Exception as e:
                         print("[ModuleHandler] Module {} caused an exception:"
                               "{}".format(self._command_list[cmd], e),

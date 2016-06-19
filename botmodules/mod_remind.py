@@ -157,3 +157,7 @@ class Remind(module_base.ModuleBase):
             self.send_msg(connection, event, is_public, "{}: Invalid format"
                     .format(user))
 
+    def on_help(self, module_data, connection, event, is_public):
+        self.send_msg(connection, event, is_public, "{}{} <format> - message "
+                "(format: HH:MM:SS or 1w1d1h1m1s or @10:30 or @1.1.1970 10:10)"
+                .format(module_data["prefix"], module_data["command"]))
