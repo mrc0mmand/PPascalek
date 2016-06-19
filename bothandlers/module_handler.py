@@ -18,7 +18,8 @@ class ModuleHandler(object):
         # List of available commands
         self._command_list = dict()
         # Define directory with modules
-        self._modules_path = os.path.join(os.path.dirname(os.pardir), 'botmodules')
+        self._modules_path = os.path.join(os.path.dirname(os.pardir),
+                                                                "botmodules")
         # Create module list
         self._modules_list = pkgutil.iter_modules(path=[self._modules_path])
         # Initialize empty dictionary for loaded modules
@@ -50,18 +51,20 @@ class ModuleHandler(object):
         command = event.arguments[0].partition(' ')[0]
         event.arguments[0] = event.arguments[0].partition(' ')[2]
         # Save the command into module_data dictionary
-        module_data['command'] = command
+        module_data["command"] = command
 
         if command:
             command.lower()
             for cmd in self._command_list:
                 if command == cmd:
                     try:
-                        self._loaded_modules[self._command_list[cmd]].on_command(module_data,
-                                                                      connection, event, is_public)
+                        listcmd = self._command_list[cmd]
+                        self._loaded_modules[listcmd].on_command(module_data,
+                                            connection, event, is_public)
                     except Exception as e:
-                        print('[ModuleHandler] Module {} caused an exception: {}'
-                              .format(self._command_list[cmd], e), file=sys.stderr)
+                        print("[ModuleHandler] Module {} caused an exception:"
+                              "{}".format(self._command_list[cmd], e),
+                                            file=sys.stderr)
 
     def _get_mod_settings(self, module):
         mod_settings = dict()
@@ -70,7 +73,8 @@ class ModuleHandler(object):
             mod_settings[server] = dict()
 
             if module in sdata:
-                mod_settings[server]['@global'] = self._mod_settings[server][module]
+                msettings = self._mod_settings[server][module]
+                mod_settings[server]["@global"] = msettings
 
             for channel, cdata in sdata.items():
                 if module in cdata:
@@ -78,12 +82,13 @@ class ModuleHandler(object):
                         mod_settings[server] = dict()
 
                     mod_settings[server][channel] = dict()
-                    mod_settings[server][channel] = self._mod_settings[server][channel][module]
+                    csettings = self._mod_settings[server][channel][module]
+                    mod_settings[server][channel] = csettings
 
         return mod_settings
 
     def _get_class_name(self, mod_name):
-        class_name = ''
+        class_name = ""
 
         # Split module name and skip first word (mod)
         words = mod_name.split('_')[1:]
@@ -101,14 +106,15 @@ class ModuleHandler(object):
     def load_module(self, mod_name):
         # Check if module isn't already loaded
         if mod_name not in sys.modules:
-            # Skip files which don't start with 'mod_'
+            # Skip files which don't start with "mod_"
             if not mod_name.startswith("mod_"):
                 return
 
-            print('[ModuleHandler] Loading module \'{}\' [{}]'
+            print("[ModuleHandler] Loading module '{}' [{}]"
                   .format(mod_name, self._modules_path + '.' + mod_name))
             # Import it
-            loaded_mod = __import__(self._modules_path + '.' + mod_name, fromlist=[mod_name])
+            loaded_mod = __import__(self._modules_path + '.' + mod_name,
+                                        fromlist=[mod_name])
 
             # Load class from imported module
             class_name = self._get_class_name(mod_name)
@@ -121,20 +127,21 @@ class ModuleHandler(object):
             commands = self._loaded_modules[mod_name].get_commands()
 
             if commands is None:
-                print("[WARNING] Module {} didn't register any commands" .format(mod_name))
+                print("[WARNING] Module {} didn't register any commands"
+                        .format(mod_name))
             else:
                 self._register_commands(commands, mod_name)
 
-            print('[ModuleHandler] Loaded module \'{}\'' .format(mod_name))
+            print("[ModuleHandler] Loaded module '{}'" .format(mod_name))
 
     def _load_all_modules(self):
-        print('Loading modules...')
+        print("Loading modules...")
 
         for loader, mod_name, ispkg in self._modules_list:
             self.load_module(mod_name)
 
     def reload_module(self, mod_name):
-        print('Reloading module ', mod_name)
+        print("Reloading module ", mod_name)
         self._modules_list = pkgutil.iter_modules(path=[self._modules_path])
 
         # Check if given module is loaded
@@ -142,11 +149,12 @@ class ModuleHandler(object):
             # Remove module class instance
             del(self._loaded_modules[mod_name])
             # Reload module
-            reloaded_mod = importlib.reload(sys.modules[self._modules_path + '.' + mod_name])
+            reloaded_mod = importlib.reload(sys.modules[self._modules_path +
+                                                '.' + mod_name])
             # Get class name from module
             class_name = self._get_class_name(mod_name)
             # Get class object
             reloaded_class = getattr(reloaded_mod, class_name)
             # Create class instance
             self._loaded_modules[mod_name] = reloaded_class()
-            print('Module {} reloaded ' .format(mod_name))
+            print("Module {} reloaded".format(mod_name))
