@@ -29,39 +29,6 @@ class Bot(object):
         self._load_config()
         self._module_handler = module_handler.ModuleHandler(self._config_file)
 
-    def handle_signals(self, signal, func=None):
-        if(signal == 15):
-            s = "SIGTERM"
-            self._exitSignal = True
-        elif(signal == 2):
-            s = "SIGINT"
-            self._exitSignal = True
-        else:
-            s = "Unknown"
-
-        # Clean exit
-        if self._exitSignal != False:
-            for i in self._server_list:
-                # .quit(s) to shodi na interrupted system call, ale disconnect funguje
-                # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
-                self._server_list[i]["@@s"].disconnect(s)
-
-        # Beautiful workaround for killing all remaining threads
-        os._exit(0)
-
-    def add_server(self, address, port, nickname, scmdprefix):
-        self._server_list[address] = dict()
-        self._server_list[address]["@@s"] = self._client.server()
-
-        try:
-            self._server_list[address]["@@s"].connect(address, port, nickname,
-                    None, nickname, nickname)
-        except client.ServerConnectionError as e:
-            print(e)
-            self._server_list[address]["@@s"].reconnect()
-
-        self._server_list[address]["@@s_cmdprefix"] = scmdprefix
-
     def _on_connect(self, connection, event):
         print("[{}] Connected to {}" .format(event.type.upper(), event.source))
         for server in self._server_list:
@@ -184,9 +151,6 @@ class Bot(object):
                 event.source.split('!', 1)[0], event.target))
         self._module_handler.handle_nick(connection, event)
 
-    def join_channel(self, serveraddr, channel, password):
-        self._server_list[serveraddr]["@@s"].join(channel, password)
-
     def _load_config(self):
         try:
             self._cp = config_parser.ConfigParser(self._config_file)
@@ -209,6 +173,42 @@ class Bot(object):
                 cmdprefix = self._cp.get_channel_cmdprefix(chan, scmdprefix)
                 self._server_list[serveraddr][chname] = channel.Channel(
                         serveraddr, chname, chpass, cmdprefix)
+
+    def handle_signals(self, signal, func=None):
+        if(signal == 15):
+            s = "SIGTERM"
+            self._exitSignal = True
+        elif(signal == 2):
+            s = "SIGINT"
+            self._exitSignal = True
+        else:
+            s = "Unknown"
+
+        # Clean exit
+        if self._exitSignal != False:
+            for i in self._server_list:
+                # .quit(s) to shodi na interrupted system call, ale disconnect funguje
+                # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
+                self._server_list[i]["@@s"].disconnect(s)
+
+        # Beautiful workaround for killing all remaining threads
+        os._exit(0)
+
+    def add_server(self, address, port, nickname, scmdprefix):
+        self._server_list[address] = dict()
+        self._server_list[address]["@@s"] = self._client.server()
+
+        try:
+            self._server_list[address]["@@s"].connect(address, port, nickname,
+                    None, nickname, nickname)
+        except client.ServerConnectionError as e:
+            print(e)
+            self._server_list[address]["@@s"].reconnect()
+
+        self._server_list[address]["@@s_cmdprefix"] = scmdprefix
+
+    def join_channel(self, serveraddr, channel, password):
+        self._server_list[serveraddr]["@@s"].join(channel, password)
 
     def start(self):
         print("Starting bot instance...")
