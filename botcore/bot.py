@@ -6,8 +6,10 @@ import re
 import sys
 import pkgutil
 import importlib
+import threading
 from irc import client
 from botcore import channel
+from datetime import datetime, timedelta
 from botutils import config_parser, utils
 
 class Bot(object):
@@ -28,6 +30,12 @@ class Bot(object):
         self._client.add_global_handler("quit", self._on_quit)
         self._client.add_global_handler("nick", self._on_nick)
         self._server_list = dict()
+        # Initialize timer
+        self._timer_lock = threading.Lock()
+        self._timer_queue = list()
+        self._timer = threading.Timer(1, self._timer_process)
+        self._timer.start()
+        # Load config and initialize modules
         self._load_config()
         self._module_handler()
 
@@ -94,13 +102,13 @@ class Bot(object):
                     try:
                         listcmd = self._command_list[cmd]
                         if help_mode:
-                            self._loaded_modules[listcmd].on_help(module_data,
-                                    connection, event, is_public)
+                            self._loaded_modules[listcmd].on_help(self,
+                                    b, connection, event, is_public)
                         else:
-                            self._loaded_modules[listcmd].on_command(
+                            self._loaded_modules[listcmd].on_command(self,
                                     module_data, connection, event, is_public)
                     except Exception as e:
-                        print("[ModuleHandler] Module {} caused an exception:"
+                        print("[ERROR] Module {} caused an exception: "
                               "{}".format(self._command_list[cmd], e),
                                             file=sys.stderr)
 
@@ -320,6 +328,24 @@ class Bot(object):
             self._loaded_modules[mod_name] = reloaded_class()
             print("Module {} reloaded".format(mod_name))
 
+    def _timer_process(self):
+        # Not sure how safe this solution is
+        ts = datetime.now().timestamp()
+        new_queue = list()
+        self._timer_lock.acquire()
+        for item in self._timer_queue:
+            pass
+            #if int(item["time"]) == int(ts):
+            #    self.send_msg(item["conn"], item["event"], item["is_pub"],
+            #                    item["msg"])
+            #else:
+            #    new_queue.append(item)
+
+        self._timer_queue = new_queue
+        self._timer_lock.release()
+        self._timer = threading.Timer(1, self._timer_process)
+        self._timer.start()
+
     def add_server(self, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
         self._server_list[address]["@@s"] = self._client.server()
@@ -346,8 +372,6 @@ class Bot(object):
         # Clean exit
         if self._exitSignal != False:
             for i in self._server_list:
-                # .quit(s) to shodi na interrupted system call, ale disconnect funguje
-                # zrejme hlavne kvuli tomu sys.exit() tam dole v ondisconnect, dunno vOv
                 self._server_list[i]["@@s"].disconnect(s)
 
         # Beautiful workaround for killing all remaining threads
@@ -355,6 +379,31 @@ class Bot(object):
 
     def join_channel(self, serveraddr, channel, password):
         self._server_list[serveraddr]["@@s"].join(channel, password)
+
+    def send_msg(self, connection, event, is_public, message):
+        destination = event.target if is_public != False else event.source
+        # Even though RFC has message limit 400 bytes, many servers
+        # have their own limit. Thus setting it to 400 characters.
+        buffer_max = (400 - len(destination) - 12)
+        msg_len = len(message.encode("utf-8"))
+
+        if msg_len >= buffer_max:
+            data = utils.split_utf8(message.encode("utf-8"), buffer_max)
+
+            for i in data:
+                try:
+                    connection.privmsg(destination, i.decode("utf-8"))
+                    print("> Sending split output to {}: {}"
+                            .format(destination, i.decode("utf-8")))
+                except Exception as e:
+                    print("Exception {0}" .format(str(e)))
+        else:
+            try:
+                connection.privmsg(destination, message)
+                print("> Sending output to {}: {}"
+                        .format(destination, message))
+            except Exception as e:
+                print("Exception {}" .format(str(e)))
 
     def start(self):
         print("Starting bot instance...")
