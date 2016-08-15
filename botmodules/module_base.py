@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from abc import ABCMeta, abstractmethod
 from botutils import utils
+from abc import ABCMeta, abstractmethod
 
 class ModuleBase(metaclass=ABCMeta):
 

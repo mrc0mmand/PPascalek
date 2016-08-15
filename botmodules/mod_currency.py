@@ -2,15 +2,12 @@
 # -*- coding: utf-8 -*-
 """ Converts an amount from one currency to another using data from cnb.cz """
 
-from . import module_base
-import urllib.request
-import time
-import json
-import sys
 import re
-
-# TODO:
-# Doge
+import sys
+import json
+import time
+import urllib.request
+from . import module_base
 
 class Currency(module_base.ModuleBase):
 

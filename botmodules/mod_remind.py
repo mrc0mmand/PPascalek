@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+import re
+import sys
+import sqlite3
 from . import module_base
 from datetime import datetime, timedelta
-import sqlite3
-import sys
-import re
 
 class Remind(module_base.ModuleBase):
 
