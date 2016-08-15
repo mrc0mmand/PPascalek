@@ -103,7 +103,7 @@ class Bot(object):
                         listcmd = self._command_list[cmd]
                         if help_mode:
                             self._loaded_modules[listcmd].on_help(self,
-                                    b, connection, event, is_public)
+                                    module_data, connection, event, is_public)
                         else:
                             self._loaded_modules[listcmd].on_command(self,
                                     module_data, connection, event, is_public)
@@ -334,12 +334,17 @@ class Bot(object):
         new_queue = list()
         self._timer_lock.acquire()
         for item in self._timer_queue:
-            pass
-            #if int(item["time"]) == int(ts):
-            #    self.send_msg(item["conn"], item["event"], item["is_pub"],
-            #                    item["msg"])
-            #else:
-            #    new_queue.append(item)
+            if int(item["delay"]) == int(ts):
+                try:
+                    self._server_list[item["server"]]["@@s"].privmsg(
+                            item["channel"], item["message"])
+                except Exception as e:
+                    print("[WARNING] Couldn't send delayed message:\n"
+                          "message: {}\ndestination: {}\nreason: {}\n"
+                          .format(item["message"], item["channel"] + "@" +
+                                  item["server"], e))
+            elif int(item["delay"]) > int(ts):
+                new_queue.append(item)
 
         self._timer_queue = new_queue
         self._timer_lock.release()
@@ -404,6 +409,25 @@ class Bot(object):
                         .format(destination, message))
             except Exception as e:
                 print("Exception {}" .format(str(e)))
+
+    def send_delayed(self, server, channel, message, delay):
+        if not server or not channel or not message or delay <= 0:
+            print("[ERROR] Invalid data for send_delayed:\n"
+                "server: {}\nchannel: {}\nmessage: {}\ndelay: {}\n"
+                .format(server, channel, message, delay))
+            return
+
+        item = {
+            "server"  : server,
+            "channel" : channel,
+            "message" : message,
+            "delay"   : int(delay)
+        }
+
+        print("SAVED MESSAGE: {}".format(item))
+        self._timer_lock.acquire()
+        self._timer_queue.append(item)
+        self._timer_lock.release()
 
     def start(self):
         print("Starting bot instance...")
