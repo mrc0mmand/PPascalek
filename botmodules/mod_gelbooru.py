@@ -9,7 +9,7 @@ from pprint import pprint
 
 # TODO: Different language wikipedias
 class Gelbooru(module_base.ModuleBase):
-    def __init__(self, settings):
+    def __init__(self, b, settings):
         pass
 
     def get_commands(self):
@@ -33,14 +33,14 @@ class Gelbooru(module_base.ModuleBase):
         else:
             return "[{}] Nothing found.".format(self.get_name())
 
-    def on_command(self, module_data, connection, event, is_public):
+    def on_command(self, b, module_data, connection, event, is_public):
         args     = event.arguments[0]
         match    = re.match(self.regex, args)
         if(match is not None):
             langcode    = match.group(2) or "en"
             word        = match.group(3)
-            self.send_msg(connection, event, is_public, self._get_wiki_result(langcode, word))
+            b.send_msg(connection, event, is_public, self._get_wiki_result(langcode, word))
         else:
-            self.send_msg(connection, event, is_public, "[{0}] Usage: ?wiki [tags]".format(self.get_name())) # [] jsou optional argumenty v manualech, right? I hope so
+            b.send_msg(connection, event, is_public, "[{0}] Usage: ?wiki [tags]".format(self.get_name())) # [] jsou optional argumenty v manualech, right? I hope so
 
 

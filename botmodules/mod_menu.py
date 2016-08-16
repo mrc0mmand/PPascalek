@@ -7,29 +7,29 @@ from urllib.error import URLError
 
 class Menu(module_base.ModuleBase):
 
-    def __init__(self, settings):
+    def __init__(self, b, settings):
         pass
 
     def get_commands(self):
         return [ 'menu' ]
 
-    def _get_menu(self, connection, event, is_public, word):
+    def _get_menu(self, b, connection, event, is_public, word):
         try:
             req = urllib.request.urlopen("http://blaskovic.sk:8099/?menu={0}".format(urllib.request.quote(word)), None, 5)
         except URLError as e:
-            self.send_msg(connection, event, is_public, "[Menu_mod] 404")
+            b.send_msg(connection, event, is_public, "[Menu_mod] 404")
             return
         except Exception as e:
-            self.send_msg(connection, event, is_public, "[Menu_mod] Unknown error: " + str(e))
+            b.send_msg(connection, event, is_public, "[Menu_mod] Unknown error: " + str(e))
             return
 
         out = req.read().decode("utf-8")
         for line in out.split("\n"):
-            self.send_msg(connection, event, is_public, line)
+            b.send_msg(connection, event, is_public, line)
 
         return out
 
-    def on_command(self, module_data, connection, event, is_public):
+    def on_command(self, b, module_data, connection, event, is_public):
         args = event.arguments[0]
 
-        self._get_menu(connection, event, is_public, args)
+        self._get_menu(b, connection, event, is_public, args)
