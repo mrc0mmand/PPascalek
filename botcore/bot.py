@@ -158,7 +158,12 @@ class Bot(object):
 
             settings = self._get_mod_settings(mod_name)
             # Create an instance of the class
-            self._loaded_modules[mod_name] = loaded_class(settings)
+            try:
+                self._loaded_modules[mod_name] = loaded_class(self, settings)
+            except Exception as e:
+                print("[ERROR] Couldn't load module '{}': {}".format(mod_name,
+                        e, file=sys.stderr))
+                return
 
             commands = self._loaded_modules[mod_name].get_commands()
 

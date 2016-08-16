@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 class Remind(module_base.ModuleBase):
 
-    def __init__(self, settings):
+    def __init__(self, b, settings):
         self._settings = settings
         self._args_regex = re.compile("^[ ]*(\@?[0-9].*?)[ ]*\-[ ]*"
                                       "(\S.*?)[ ]*$")
@@ -27,9 +27,49 @@ class Remind(module_base.ModuleBase):
                                         "(?P<hour>[0-9]{1,2})\:"
                                         "(?P<minute>[0-9]{1,2})"
                                         "(\:(?P<second>[0-9]{1,2}))?$")
+        # Load saved reminders from database
+        gs = self.get_global_settings(self._settings)
+        if gs is None or "db_name" not in gs:
+            raise KeyError("Mising 'db_name' in mod_remind's global "
+                           "settings section")
 
-    def get_commands(self):
-        return ["remind"]
+        print("DB NAME: {}".format(gs["db_name"]))
+        self._db_name = gs["db_name"]
+        self._load_db(b)
+
+    def _check_time(self, dt):
+        dtnow = datetime.now()
+
+        # Remind time should be in range
+        # past < dtnow < dt <= dtnow + 1 year
+        if dt.timestamp() <= dtnow.timestamp() or \
+           dt.timestamp() > dtnow.replace(year=dtnow.year + 1).timestamp():
+            return 1
+        else:
+            return 0
+
+    def _load_db(self, b):
+        conn = sqlite3.connect(self._db_name)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute("CREATE TABLE IF NOT EXISTS reminders("
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    "server DATA NOT NULL,"
+                    "channel DATA NOT NULL,"
+                    "message DATA NOT NULL,"
+                    "delay INTEGER NOT NULL);")
+
+        dtnow = datetime.now()
+        for row in c.execute("SELECT * FROM reminders"):
+            if int(row["delay"]) < int(dtnow.timestamp()):
+                c.execute("DELETE FROM reminders WHERE id = ?", (row["id"],))
+            else:
+                print("Adding reminder into queue: {}".format(row["message"]))
+                b.send_delayed(row["server"], row["channel"], row["message"],
+                                row["delay"])
+
+        conn.commit()
+        conn.close()
 
     def _parse_time(self, data):
         dt = datetime.now()
@@ -83,17 +123,6 @@ class Remind(module_base.ModuleBase):
 
         return None
 
-    def _check_time(self, dt):
-        dtnow = datetime.now()
-
-        # Remind time should be in range
-        # past < dtnow < dt <= dtnow + 1 year
-        if dt.timestamp() <= dtnow.timestamp() or \
-           dt.timestamp() > dtnow.replace(year=dtnow.year + 1).timestamp():
-            return 1
-        else:
-            return 0
-
     def _process_time(self, data):
         dt = self._parse_time(data)
 
@@ -102,6 +131,21 @@ class Remind(module_base.ModuleBase):
                 return dt
 
         return None
+
+    def _save_reminder(self, b, server, channel, message, delay):
+        # Save reminder into DB
+        conn = sqlite3.connect(self._db_name)
+        c = conn.cursor()
+        c.execute("INSERT INTO reminders(server, channel, message, delay)"
+                  "VALUES(?, ?, ?, ?)", (server, channel, message, int(delay)))
+        conn.commit()
+        conn.close()
+        # Add reminder into global timer
+        b.send_delayed(server, channel, message, delay)
+
+
+    def get_commands(self):
+        return ["remind"]
 
     def on_command(self, b, module_data, connection, event, is_public):
         if not is_public:
@@ -115,14 +159,14 @@ class Remind(module_base.ModuleBase):
         if m:
             dt = self._process_time(m.group(1))
             if dt is not None:
-                b.send_delayed(connection.server, event.target,
-                        user + ": " + m.group(2), dt.timestamp())
+                self._save_reminder(b, connection.server, event.target,
+                            user + ": " + m.group(2), dt.timestamp())
                 b.send_msg(connection, event, is_public, "{}: Saved! "
                     "Reminder time: {}".format(user,
                                             dt.strftime("%d.%m.%y %H:%M:%S")))
             else:
                 b.send_msg(connection, event, is_public, "{}: Invalid "
-                    "date/time (0 < time < 1 year)".format(user))
+                    "date/time (0 < time < 1 year) or format".format(user))
         else:
             b.send_msg(connection, event, is_public, "{}: Invalid format"
                     .format(user))

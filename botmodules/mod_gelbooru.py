@@ -9,7 +9,7 @@ from pprint import pprint
 
 # TODO: Different language wikipedias
 class Gelbooru(module_base.ModuleBase):
-    def __init__(self, settings):
+    def __init__(self, b, settings):
         pass
 
     def get_commands(self):

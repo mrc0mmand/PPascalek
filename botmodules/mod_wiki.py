@@ -9,7 +9,7 @@ from pprint import pprint
 
 # TODO: Different language wikipedias
 class Wiki(module_base.ModuleBase):
-    def __init__(self, settings):
+    def __init__(self, b, settings):
         # language codes used for determing which wikipedia to grab the article from, defaults to english
         # currently only contains wikipedias that have above 100,000 articles
         language_codes = ["en","sv","de","nl","fr","war","ru","ceb","it","es","vi","pl","ja","pt","zh","uk","ca","fa","sh","no","ar","fi","id","ro","cs","hu","sr","ko","ms","tr","min","eo","kk","eu","da","sk","bg","he","hy","lt","hr","sl","et","uz","gl","nn","vo","la","simple","el","hi"]

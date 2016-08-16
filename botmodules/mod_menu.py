@@ -7,7 +7,7 @@ from urllib.error import URLError
 
 class Menu(module_base.ModuleBase):
 
-    def __init__(self, settings):
+    def __init__(self, b, settings):
         pass
 
     def get_commands(self):

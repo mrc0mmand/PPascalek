@@ -11,7 +11,7 @@ from . import module_base
 
 class Currency(module_base.ModuleBase):
 
-    def __init__(self, settings):
+    def __init__(self, b, settings):
         self._last_update = time.time()
         self._currency_data = dict()
         self._args_regex = re.compile("^[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+"
