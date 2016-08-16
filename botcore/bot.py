@@ -43,6 +43,10 @@ class Bot(object):
         mod_settings = dict()
 
         for server, sdata in self._module_settings.items():
+            if server == "@global" and module in sdata:
+                mod_settings[server] = sdata[module]
+                continue
+
             mod_settings[server] = dict()
 
             if module in sdata:

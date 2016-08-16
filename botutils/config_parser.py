@@ -87,9 +87,9 @@ class ConfigParser(object):
         try:
             if "mod_settings" in self._content:
                 # Load global module settings
-                mod_settings["@@global"] = dict()
+                mod_settings["@global"] = dict()
                 for m in self._content["mod_settings"]:
-                    mod_settings["@@global"][m["name"]] = m
+                    mod_settings["@global"][m["name"]] = m
 
             for s in self._content["servers"]:
                 if "mod_settings" in s:

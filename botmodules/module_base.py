@@ -16,6 +16,12 @@ class ModuleBase(metaclass=ABCMeta):
     def get_name(self):
         return self.__class__.__name__
 
+    def get_global_settings(self, settings):
+        if "@global" in settings:
+            return settings["@global"]
+
+        return None
+
     def get_curr_settings(self, connection, event, is_public, settings):
         if is_public == False and "@global" in settings[connection.server]:
             return settings[connection.server]["@global"]
