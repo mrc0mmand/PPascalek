@@ -27,13 +27,12 @@ class Remind(module_base.ModuleBase):
                                         "(?P<hour>[0-9]{1,2})\:"
                                         "(?P<minute>[0-9]{1,2})"
                                         "(\:(?P<second>[0-9]{1,2}))?$")
-        # Load saved reminders from database
+        # Get database name from global settings
         gs = self.get_global_settings(self._settings)
         if gs is None or "db_name" not in gs:
             raise KeyError("Mising 'db_name' in mod_remind's global "
                            "settings section")
-
-        print("DB NAME: {}".format(gs["db_name"]))
+        # Load saved reminders
         self._db_name = gs["db_name"]
         self._load_db(b)
 
@@ -51,8 +50,9 @@ class Remind(module_base.ModuleBase):
     def _load_db(self, b):
         conn = sqlite3.connect(self._db_name)
         conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-        c.execute("CREATE TABLE IF NOT EXISTS reminders("
+        cread = conn.cursor()
+        cwrite = conn.cursor()
+        cwrite.execute("CREATE TABLE IF NOT EXISTS reminders("
                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     "server DATA NOT NULL,"
                     "channel DATA NOT NULL,"
@@ -60,9 +60,11 @@ class Remind(module_base.ModuleBase):
                     "delay INTEGER NOT NULL);")
 
         dtnow = datetime.now()
-        for row in c.execute("SELECT * FROM reminders"):
+        cread.execute("SELECT * FROM reminders")
+        for row in cread:
             if int(row["delay"]) < int(dtnow.timestamp()):
-                c.execute("DELETE FROM reminders WHERE id = ?", (row["id"],))
+                cwrite.execute("DELETE FROM reminders WHERE id = ?",
+                                (row["id"],))
             else:
                 print("Adding reminder into queue: {}".format(row["message"]))
                 b.send_delayed(row["server"], row["channel"], row["message"],
@@ -142,7 +144,6 @@ class Remind(module_base.ModuleBase):
         conn.close()
         # Add reminder into global timer
         b.send_delayed(server, channel, message, delay)
-
 
     def get_commands(self):
         return ["remind"]

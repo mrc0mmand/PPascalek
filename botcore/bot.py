@@ -347,6 +347,8 @@ class Bot(object):
                 try:
                     self._server_list[item["server"]]["@@s"].privmsg(
                             item["channel"], item["message"])
+                    print("> Sending delayed message to {}: {}"
+                        .format(item["channel"], item["message"]))
                 except Exception as e:
                     print("[WARNING] Couldn't send delayed message:\n"
                           "message: {}\ndestination: {}\nreason: {}\n"
@@ -433,7 +435,6 @@ class Bot(object):
             "delay"   : int(delay)
         }
 
-        print("SAVED MESSAGE: {}".format(item))
         self._timer_lock.acquire()
         self._timer_queue.append(item)
         self._timer_lock.release()
