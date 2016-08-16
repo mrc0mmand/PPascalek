@@ -15,8 +15,8 @@ from botutils import config_parser, utils
 class Bot(object):
 
     def __init__(self, config_file):
-        self._exitSignal = False
-        self._nickChangeCounter = 0
+        self._exit_signal = False
+        self._nick_change_counter = 0
         self._config_file = config_file
         self._client = client.Reactor()
         # Events: https://bitbucket.org/jaraco/irc/src/9e4fb0ce922398292ed4c0cfd3822e4fe19a940d/irc/events.py?at=default#cl-177
@@ -205,7 +205,7 @@ class Bot(object):
         print("[{}] Disconnected from {}" .format(event.type.upper(),
                 event.source))
 
-        #if self._exitSignal == False:
+        #if self._exit_signal == False:
         #    # We got disconnected from the server (timeout, etc.)
         #    #self._server_list[event.source.lower()]["@@s"].reconnect()
         #    sys.exit(0)
@@ -214,17 +214,17 @@ class Bot(object):
         #    sys.exit(0)
 
     def _on_nicknameinuse(self, connection, event):
-        if(self._nickChangeCounter == 3):
+        if(self._nick_change_counter == 3):
             print("[{}] Couldn't find a free nickname, disconnecting from {}"
                   .format(event.type.upper(), event.source))
             connection.disconnect()
         else:
-            self._nickChangeCounter =+ 1
+            self._nick_change_counter =+ 1
             current_nick = connection.get_nickname()
             print("[{}] Nickname {} is already taken, changing it to {}"
                   .format(event.type.upper(), current_nick, current_nick +
-                  ("_" * self._nickChangeCounter)))
-            connection.nick(current_nick + ('_' * self._nickChangeCounter))
+                  ("_" * self._nick_change_counter)))
+            connection.nick(current_nick + ('_' * self._nick_change_counter))
 
     def _on_privmsg(self, connection, event):
         print("[{}] {}: <{}> {}" .format(event.type.upper(), event.target,
@@ -378,15 +378,15 @@ class Bot(object):
     def handle_signals(self, signal, func=None):
         if(signal == 15):
             s = "SIGTERM"
-            self._exitSignal = True
+            self._exit_signal = True
         elif(signal == 2):
             s = "SIGINT"
-            self._exitSignal = True
+            self._exit_signal = True
         else:
             s = "Unknown"
 
         # Clean exit
-        if self._exitSignal != False:
+        if self._exit_signal != False:
             for i in self._server_list:
                 self._server_list[i]["@@s"].disconnect(s)
 
@@ -412,7 +412,7 @@ class Bot(object):
                     print("> Sending split output to {}: {}"
                             .format(destination, i.decode("utf-8")))
                 except Exception as e:
-                    print("Exception {0}" .format(str(e)))
+                    print("Exception {0}".format(str(e)))
         else:
             try:
                 connection.privmsg(destination, message)
