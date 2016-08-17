@@ -2,7 +2,7 @@
 
 A light-weight module-based IRC bot written in Python3 using the [irc](https://bitbucket.org/jaraco/irc/) library.
 
-## Depencies
+## Dependencies
 * [Python](https://www.python.org/) >= 3.2
 * [irc](https://bitbucket.org/jaraco/irc/) >= 12.2
 
