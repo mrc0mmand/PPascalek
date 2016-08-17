@@ -397,7 +397,10 @@ class Bot(object):
         self._server_list[serveraddr]["@@s"].join(channel, password)
 
     def send_msg(self, connection, event, is_public, message):
-        destination = event.target if is_public != False else event.source
+        if is_public:
+            destination = event.target
+        else:
+            destination = event.source.split("!")[0]
         # Even though RFC has message limit 400 bytes, many servers
         # have their own limit. Thus setting it to 400 characters.
         buffer_max = (400 - len(destination) - 12)
