@@ -245,6 +245,9 @@ class Bot(object):
         if target in self._server_list[serveraddr]:
             # Channel messsage (pubmsg)
             # event.arguments[0] contains actual message
+            # Because _handle_command modifies received message,
+            # process it through the pubmsg handler first
+            self._handle_pubmsg(connection, event)
             # Check, if message starts with defined command prefix
             cmdprefix = self._server_list[serveraddr][target].get_cmdprefix()
             if event.arguments[0].startswith(cmdprefix):
@@ -257,11 +260,12 @@ class Bot(object):
                 # Call module handler
                 self._handle_command(connection, event,
                         module_data, True)
-
-            self._handle_pubmsg(connection, event)
         else:
             # Query
             # event.arguments[0] contains actual message
+            # Because _handle_command modifies received message,
+            # process it through the privmsg handler first
+            self._handle_privmsg(connection, event)
             # Check, if message starts with defined command prefix
             cmdprefix = self._server_list[serveraddr]["@@s_cmdprefix"]
             if event.arguments[0].startswith(cmdprefix):
@@ -274,8 +278,6 @@ class Bot(object):
                 # Call command handler
                 self._handle_command(connection, event,
                         module_data, False)
-
-            self._handle_privmsg(connection, event)
 
     def _on_pubmsg(self, connection, event):
         print("[{}] {}: <{}> {}" .format(event.type.upper(), event.target,

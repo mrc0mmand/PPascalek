@@ -12,7 +12,7 @@ class Test(module_base.ModuleBase):
         return ["test"]
 
     def on_privmsg(self, connection, event):
-        print("mod_test has got a privmsg! [{}]".format(event.arguments))
+        print("mod_test has got a privmsg: {}".format(event.arguments[0]))
         connection.privmsg(event.source, "I'M ALIVE!")
 
     def on_pubmsg(self, connection, event):
