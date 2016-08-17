@@ -32,10 +32,10 @@ class ModuleBase(metaclass=ABCMeta):
 
         return None
 
-    def on_privmsg(self, connection, event):
+    def on_privmsg(self, b, connection, event):
         pass
 
-    def on_pubmsg(self, connection, event):
+    def on_pubmsg(self, b, connection, event):
         pass
 
     def on_command(self, b, module_data, connection, event, is_public):
@@ -44,11 +44,11 @@ class ModuleBase(metaclass=ABCMeta):
     def on_help(self, b, module_data, connection, event, is_public):
         pass
 
-    def on_join(self, connection, event):
+    def on_join(self, b, connection, event):
         pass
 
-    def on_quit(self, connection, event):
+    def on_quit(self, b, connection, event):
         pass
 
-    def on_nick(self, connection, event):
+    def on_nick(self, b, connection, event):
         pass

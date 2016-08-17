@@ -66,23 +66,23 @@ class Bot(object):
 
     def _handle_privmsg(self, connection, event):
         for module in self._loaded_modules:
-            self._loaded_modules[module].on_privmsg(connection, event)
+            self._loaded_modules[module].on_privmsg(self, connection, event)
 
     def _handle_pubmsg(self, connection, event):
         for module in self._loaded_modules:
-            self._loaded_modules[module].on_pubmsg(connection, event)
+            self._loaded_modules[module].on_pubmsg(self, connection, event)
 
     def _handle_join(self, connection, event):
         for module in self._loaded_modules:
-            self._loaded_modules[module].on_join(connection, event)
+            self._loaded_modules[module].on_join(self, connection, event)
 
     def _handle_quit(self, connection, event):
         for module in self._loaded_modules:
-            self._loaded_modules[module].on_quit(connection, event)
+            self._loaded_modules[module].on_quit(self, connection, event)
 
     def _handle_nick(self, connection, event):
         for module in self._loaded_modules:
-            self._loaded_modules[module].on_nick(connection, event)
+            self._loaded_modules[module].on_nick(self, connection, event)
 
     def _handle_command(self, connection, event, module_data, is_public):
         # Get first word from the argument string, save it and strip it
@@ -332,7 +332,7 @@ class Bot(object):
             reloaded_mod = importlib.reload(sys.modules[self._modules_path +
                                                 '.' + mod_name])
             # Get class name from module
-            class_name = self._get_class_name(mod_name)
+            class_name = utils.get_class_name(mod_name)
             # Get class object
             reloaded_class = getattr(reloaded_mod, class_name)
             # Create class instance
