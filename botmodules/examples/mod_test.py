@@ -11,11 +11,11 @@ class Test(module_base.ModuleBase):
     def get_commands(self):
         return ["test"]
 
-    def on_privmsg(self, connection, event):
+    def on_privmsg(self, b, connection, event):
         print("mod_test has got a privmsg: {}".format(event.arguments[0]))
         connection.privmsg(event.source, "I'M ALIVE!")
 
-    def on_pubmsg(self, connection, event):
+    def on_pubmsg(self, b, connection, event):
         print("[Test] Event object:", event)
         print("mod_test has got a pubmsg: {}".format(event.arguments[0]))
 
