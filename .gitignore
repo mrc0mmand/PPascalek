@@ -1,6 +1,7 @@
 # Custom config
 *.json
 !config.json.example
+*.db3
 
 # Python
 __pycache__/

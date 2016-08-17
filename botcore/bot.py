@@ -169,7 +169,7 @@ class Bot(object):
 
             if commands is None:
                 print("[WARNING] Module {} didn't register any commands"
-                        .format(mod_name))
+                        .format(mod_name), file=sys.stderr)
             else:
                 self._register_commands(commands, mod_name)
 
@@ -353,7 +353,7 @@ class Bot(object):
                     print("[WARNING] Couldn't send delayed message:\n"
                           "message: {}\ndestination: {}\nreason: {}\n"
                           .format(item["message"], item["channel"] + "@" +
-                                  item["server"], e))
+                                  item["server"], e), file=sys.stderr)
             elif int(item["delay"]) > int(ts):
                 new_queue.append(item)
 
@@ -428,7 +428,7 @@ class Bot(object):
         if not server or not channel or not message or delay <= 0:
             print("[ERROR] Invalid data for send_delayed:\n"
                 "server: {}\nchannel: {}\nmessage: {}\ndelay: {}\n"
-                .format(server, channel, message, delay))
+                .format(server, channel, message, delay), file=sys.stderr)
             return
 
         item = {
