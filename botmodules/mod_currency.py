@@ -42,7 +42,7 @@ class Currency(module_base.ModuleBase):
                                          "devizovy_trh/kurzy_devizoveho_trhu/"
                                          "denni_kurz.txt", None, 5)
         except Exception as e:
-            print("[Currency] Couldn't fetch currency rates for CNB {}"
+            print("[Currency] Couldn't fetch currency rates from CNB {}"
                     .format(e), file=sys.stderr)
             return 1
 
