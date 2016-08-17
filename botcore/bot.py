@@ -320,7 +320,7 @@ class Bot(object):
         self._handle_pubmsg(connection, event)
 
     def _on_join(self, connection, event):
-        print("[{}] {} has joined {}" .format(event.type.upper(), event.source,
+        print("[{}] {} has joined {}".format(event.type.upper(), event.source,
                                               event.target))
         self._handle_join(connection, event)
 
@@ -328,12 +328,12 @@ class Bot(object):
         # We don't need two separate signals for quit and part
         # (or at least for now)
         qtype = "quit" if event.type == "quit" else "left"
-        print("[{}] {} has {} [{}]" .format(event.type.upper(), event.source,
-                qtype, event.arguments[0]))
+        print("[{}] {} has {} {}".format(event.type.upper(), event.source,
+                qtype, event.arguments))
         self._handle_quit(connection, event)
 
     def _on_nick(self, connection, event):
-        print("[{}] {} is now known as {}" .format(event.type.upper(),
+        print("[{}] {} is now known as {}".format(event.type.upper(),
                 event.source.split('!', 1)[0], event.target))
         self._handle_nick(connection, event)
 
