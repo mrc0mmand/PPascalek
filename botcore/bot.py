@@ -147,8 +147,7 @@ class Bot(object):
                 return
 
             mod_path = self._modules_path + ".enabled." + mod_name
-            print("Loading module '{}' [{}]"
-                  .format(mod_name, mod_path))
+            print("Loading module '{}' [{}]".format(mod_name, mod_path))
             # Import it
             loaded_mod = __import__(mod_path, fromlist=[mod_name])
 

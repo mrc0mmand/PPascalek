@@ -21,8 +21,22 @@ class Currency(module_base.ModuleBase):
                                      "([0-9,.]+).*")
         self._do_update()
 
-    def get_commands(self):
-        return ["curr", "currency", "currency-list", "curr-list"]
+    def _convert(self, code_from, code_to, amount_from):
+        res = 0
+
+        if code_from == "CZK":
+            res = (amount_from / (self._currency_data[code_to]["rate"] /
+                  self._currency_data[code_to]["amount"]))
+        elif code_to == "CZK":
+            res = ((amount_from / self._currency_data[code_from]["amount"]) *
+                  self._currency_data[code_from]["rate"])
+        else:
+            res = (((amount_from / self._currency_data[code_from]["amount"]) /
+                  (self._currency_data[code_to]["rate"] /
+                    self._currency_data[code_to]["amount"])) *
+                  self._currency_data[code_from]["rate"])
+
+        return res
 
     def _do_update(self):
         print("[Currency] Updating currency rates")
@@ -35,24 +49,6 @@ class Currency(module_base.ModuleBase):
             self._last_update -= 1800
         else:
             self._last_update = time.time()
-
-    def _get_curr_CNB(self):
-        try:
-            req = urllib.request.urlopen("http://www.cnb.cz/cs/financni_trhy/"
-                                         "devizovy_trh/kurzy_devizoveho_trhu/"
-                                         "denni_kurz.txt", None, 5)
-        except Exception as e:
-            print("[Currency] Couldn't fetch currency rates from CNB {}"
-                    .format(e), file=sys.stderr)
-            return 1
-
-        for line in req:
-            m = re.search(self._CNB_regex, str(line))
-            if m:
-                self._currency_data[m.group(2)] = dict(amount=int(m.group(1)),
-                        rate=float(m.group(3).replace(',', '.')))
-
-        return 0
 
     def _get_curr_BTC(self):
         if not self._currency_data["USD"]:
@@ -79,22 +75,26 @@ class Currency(module_base.ModuleBase):
 
         return 0
 
-    def _convert(self, code_from, code_to, amount_from):
-        res = 0
+    def _get_curr_CNB(self):
+        try:
+            req = urllib.request.urlopen("http://www.cnb.cz/cs/financni_trhy/"
+                                         "devizovy_trh/kurzy_devizoveho_trhu/"
+                                         "denni_kurz.txt", None, 5)
+        except Exception as e:
+            print("[Currency] Couldn't fetch currency rates from CNB {}"
+                    .format(e), file=sys.stderr)
+            return 1
 
-        if code_from == "CZK":
-            res = (amount_from / (self._currency_data[code_to]["rate"] /
-                  self._currency_data[code_to]["amount"]))
-        elif code_to == "CZK":
-            res = ((amount_from / self._currency_data[code_from]["amount"]) *
-                  self._currency_data[code_from]["rate"])
-        else:
-            res = (((amount_from / self._currency_data[code_from]["amount"]) /
-                  (self._currency_data[code_to]["rate"] /
-                    self._currency_data[code_to]["amount"])) *
-                  self._currency_data[code_from]["rate"])
+        for line in req:
+            m = re.search(self._CNB_regex, str(line))
+            if m:
+                self._currency_data[m.group(2)] = dict(amount=int(m.group(1)),
+                        rate=float(m.group(3).replace(',', '.')))
 
-        return res
+        return 0
+
+    def get_commands(self):
+        return ["curr", "currency", "currency-list", "curr-list"]
 
     def on_command(self, b, module_data, connection, event, is_public):
         if time.time() - self._last_update >= 1800:
