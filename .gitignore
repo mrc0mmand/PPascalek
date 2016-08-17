@@ -2,6 +2,7 @@
 *.json
 !config.json.example
 *.db3
+botmodules/enabled/mod_*.py
 
 # Python
 __pycache__/

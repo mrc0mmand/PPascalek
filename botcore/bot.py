@@ -146,11 +146,11 @@ class Bot(object):
             if not mod_name.startswith("mod_"):
                 return
 
+            mod_path = self._modules_path + ".enabled." + mod_name
             print("Loading module '{}' [{}]"
-                  .format(mod_name, self._modules_path + '.' + mod_name))
+                  .format(mod_name, mod_path))
             # Import it
-            loaded_mod = __import__(self._modules_path + '.' + mod_name,
-                                        fromlist=[mod_name])
+            loaded_mod = __import__(mod_path, fromlist=[mod_name])
 
             # Load class from imported module
             class_name = utils.get_class_name(mod_name)
@@ -182,9 +182,10 @@ class Bot(object):
         self._command_list = dict()
         # Define directory with modules
         self._modules_path = os.path.join(os.path.dirname(os.pardir),
-                                                                "botmodules")
+                                                            "botmodules")
+        enabled_modules = os.path.join(self._modules_path, "enabled")
         # Create module list
-        self._modules_list = pkgutil.iter_modules(path=[self._modules_path])
+        self._modules_list = pkgutil.iter_modules(path=[enabled_modules])
         # Initialize empty dictionary for loaded modules
         self._loaded_modules = dict()
         # Load modules
