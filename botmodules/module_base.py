@@ -22,13 +22,18 @@ class ModuleBase(metaclass=ABCMeta):
         return None
 
     def get_curr_settings(self, connection, event, is_public, settings):
-        if is_public == False and "@global" in settings[connection.server]:
-            return settings[connection.server]["@global"]
-        elif is_public == True:
-            if event.target in settings[connection.server]:
-                return settings[connection.server][event.target]
-            elif "@global" in settings[connection.server]:
+        try:
+            if is_public == False and "@global" in settings[connection.server]:
                 return settings[connection.server]["@global"]
+            elif is_public == True:
+                if event.target in settings[connection.server]:
+                    return settings[connection.server][event.target]
+                elif "@global" in settings[connection.server]:
+                    return settings[connection.server]["@global"]
+        except Exception as e:
+            print("[INFO] Missing 'mod_settings' section for '{}'"
+                    .format(connection.server))
+            return None
 
         return None
 
