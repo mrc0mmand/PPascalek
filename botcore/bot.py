@@ -70,48 +70,48 @@ class Bot(object):
                 self._loaded_modules[module].on_privmsg(self, connection,
                                                         event)
         except Exception as e:
-            print("[ERROR] Module '{}' caused an exception (PRIVMSG): {}"
-                    .format(module, e), file=sys.stderr)
+            print("[ERROR] Module '{}' caused an exception (PRIVMSG): {}: {}"
+                    .format(module, type(e).__name__, e.args), file=sys.stderr)
 
     def _handle_part(self, connection, event):
         try:
             for module in self._loaded_modules:
                 self._loaded_modules[module].on_part(self, connection, event)
         except Exception as e:
-            print("[ERROR] Module '{}' caused an exception (PART): {}"
-                    .format(module, e), file=sys.stderr)
+            print("[ERROR] Module '{}' caused an exception (PART): {}: {}"
+                    .format(module, type(e).__name__, e.args), file=sys.stderr)
 
     def _handle_pubmsg(self, connection, event):
         try:
             for module in self._loaded_modules:
                 self._loaded_modules[module].on_pubmsg(self, connection, event)
         except Exception as e:
-            print("[ERROR] Module '{}' caused an exception (PUBMSG): {}"
-                    .format(module, e), file=sys.stderr)
+            print("[ERROR] Module '{}' caused an exception (PUBMSG): {}: {}"
+                    .format(module, type(e).__name__, e.args), file=sys.stderr)
 
     def _handle_join(self, connection, event):
         try:
             for module in self._loaded_modules:
                 self._loaded_modules[module].on_join(self, connection, event)
         except Exception as e:
-            print("[ERROR] Module '{}' caused an exception (JOIN): {}"
-                    .format(module, e), file=sys.stderr)
+            print("[ERROR] Module '{}' caused an exception (JOIN): {}: {}"
+                    .format(module, type(e).__name__, e.args), file=sys.stderr)
 
     def _handle_quit(self, connection, event):
         try:
             for module in self._loaded_modules:
                 self._loaded_modules[module].on_quit(self, connection, event)
         except Exception as e:
-            print("[ERROR] Module '{}' caused an exception (QUIT): {}"
-                    .format(module, e), file=sys.stderr)
+            print("[ERROR] Module '{}' caused an exception (QUIT): {}: {}"
+                    .format(module, type(e).__name__, e.args), file=sys.stderr)
 
     def _handle_nick(self, connection, event):
         try:
             for module in self._loaded_modules:
                 self._loaded_modules[module].on_nick(self, connection, event)
         except Exception as e:
-            print("[ERROR] Module '{}' caused an exception (NICK): {}"
-                    .format(module, e), file=sys.stderr)
+            print("[ERROR] Module '{}' caused an exception (NICK): {}: {}"
+                    .format(module, type(e).__name__, e.args), file=sys.stderr)
 
     def _handle_command(self, connection, event, module_data, is_public):
         # Get first word from the argument string, save it and strip it
@@ -142,9 +142,9 @@ class Bot(object):
                                     module_data, connection, event, is_public)
                     except Exception as e:
                         print("[ERROR] Module '{}' caused an exception "
-                                "(COMMAND): {}".format(self._command_list[cmd],
-                                e), file=sys.stderr)
-
+                                "(COMMAND): {}: {}".format(
+                                    self._command_list[cmd], type(e).__name__,
+                                    e.args), file=sys.stderr)
     def _load_config(self):
         try:
             cparser = config_parser.ConfigParser(self._config_file)
