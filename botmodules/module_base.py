@@ -32,6 +32,9 @@ class ModuleBase(metaclass=ABCMeta):
 
         return None
 
+    def on_part(self, b, connection, event):
+        pass
+
     def on_privmsg(self, b, connection, event):
         pass
 

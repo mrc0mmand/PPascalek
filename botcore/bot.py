@@ -19,16 +19,16 @@ class Bot(object):
         self._nick_change_counter = 0
         self._config_file = config_file
         self._client = client.Reactor()
-        # Events: https://bitbucket.org/jaraco/irc/src/9e4fb0ce922398292ed4c0cfd3822e4fe19a940d/irc/events.py?at=default#cl-177
         self._client.add_global_handler("welcome", self._on_connect)
         self._client.add_global_handler("disconnect", self._on_disconnect)
         self._client.add_global_handler("nicknameinuse", self._on_nicknameinuse)
         self._client.add_global_handler("pubmsg", self._on_privmsg)
         self._client.add_global_handler("privmsg", self._on_privmsg)
         self._client.add_global_handler("join", self._on_join)
-        self._client.add_global_handler("part", self._on_quit)
+        self._client.add_global_handler("part", self._on_part)
         self._client.add_global_handler("quit", self._on_quit)
         self._client.add_global_handler("nick", self._on_nick)
+        self._client.add_global_handler("namreply", self._on_namreply)
         self._server_list = dict()
         # Initialize timer
         self._timer_lock = threading.Lock()
@@ -71,6 +71,14 @@ class Bot(object):
                                                         event)
         except Exception as e:
             print("[ERROR] Module '{}' caused an exception (PRIVMSG): {}"
+                    .format(module, e), file=sys.stderr)
+
+    def _handle_part(self, connection, event):
+        try:
+            for module in self._loaded_modules:
+                self._loaded_modules[module].on_part(self, connection, event)
+        except Exception as e:
+            print("[ERROR] Module '{}' caused an exception (PART): {}"
                     .format(module, e), file=sys.stderr)
 
     def _handle_pubmsg(self, connection, event):
@@ -247,6 +255,17 @@ class Bot(object):
                   ("_" * self._nick_change_counter)))
             connection.nick(current_nick + ('_' * self._nick_change_counter))
 
+    def _on_part(self, connection, event):
+        user = event.source.nick
+        channel = event.target
+        print("[{}] {} has left {}: {}".format(event.type.upper(), user,
+                channel, event.arguments))
+
+        if channel in self._server_list[connection.server]:
+            self._server_list[connection.server][channel].remove_user(user)
+
+        self._handle_part(connection, event)
+
     def _on_privmsg(self, connection, event):
         print("[{}] {}: <{}> {}" .format(event.type.upper(), event.target,
                                          event.source.split('!', 1)[0],
@@ -320,21 +339,51 @@ class Bot(object):
         self._handle_pubmsg(connection, event)
 
     def _on_join(self, connection, event):
-        print("[{}] {} has joined {}".format(event.type.upper(), event.source,
-                                              event.target))
+        user = event.source.nick
+        channel = event.target
+        print("[{}] {} has joined {}".format(event.type.upper(), user, channel))
+        self._server_list[connection.server][channel].add_user(user)
         self._handle_join(connection, event)
 
     def _on_quit(self, connection, event):
-        # We don't need two separate signals for quit and part
-        # (or at least for now)
-        qtype = "quit" if event.type == "quit" else "left"
-        print("[{}] {} has {} {}".format(event.type.upper(), event.source,
-                qtype, event.arguments))
+        user = event.source.nick
+        print("[{}] {} has quit {}".format(event.type.upper(), user,
+                event.arguments))
+
+        for chname, chobj in self._server_list[connection.server].items():
+            # Skip control objects (@@s, ...)
+            if chname.startswith('@'):
+                continue
+            if chobj.has_user(user):
+                chobj.remove_user(user)
+
         self._handle_quit(connection, event)
 
+    def _on_namreply(self, connection, event):
+        # TODO: Keep user lists updated (JOIN/PART/QUIT/NICK)
+        ch_type, channel, users = event.arguments
+        if channel not in self._server_list[connection.server]:
+            print("[ERROR] Got NAMES response for unknown channel '{}'"
+                    .format(channel), file=sys.stderr)
+
+        for user in users.split():
+            # Throw away user modes (at least for now)
+            if user[0] in connection.features.prefix:
+                user = user[1:]
+
+            self._server_list[connection.server][channel].add_user(user)
+
     def _on_nick(self, connection, event):
-        print("[{}] {} is now known as {}".format(event.type.upper(),
-                event.source.split('!', 1)[0], event.target))
+        old = event.source.nick
+        new = event.target
+        print("[{}] {} is now known as {}".format(event.type.upper(), old, new))
+        for chname, chobj in self._server_list[connection.server].items():
+            # Skip control objects (@@s, ...)
+            if chname.startswith('@'):
+                continue
+            if chobj.has_user(old):
+                chobj.change_user(old, new)
+
         self._handle_nick(connection, event)
 
     def _register_commands(self, commands, module_name):
@@ -359,6 +408,29 @@ class Bot(object):
             # Create class instance
             self._loaded_modules[mod_name] = reloaded_class()
             print("Module {} reloaded".format(mod_name))
+
+    def _send_message(self, connection, target, message):
+        # Even though RFC has message limit 400 bytes, many servers
+        # have their own limit. Thus setting it to 400 characters.
+        buffer_max = (400 - len(target) - 12)
+        msg_len = len(message.encode("utf-8"))
+
+        if msg_len >= buffer_max:
+            data = utils.split_utf8(message.encode("utf-8"), buffer_max)
+
+            for i in data:
+                try:
+                    connection.privmsg(target, i.decode("utf-8"))
+                    print("> Sending split output to {}: {}"
+                            .format(target, i.decode("utf-8")))
+                except Exception as e:
+                    print("Exception {0}".format(str(e)))
+        else:
+            try:
+                connection.privmsg(target, message)
+                print("> Sending output to {}: {}".format(target, message))
+            except Exception as e:
+                print("Exception {}".format(str(e)))
 
     def _timer_process(self):
         # Not sure how safe this solution is
@@ -398,6 +470,20 @@ class Bot(object):
 
         self._server_list[address]["@@s_cmdprefix"] = scmdprefix
 
+    def get_channels(self, server):
+        if server in self._server_list:
+            return [x for x in self._server_list[server].keys()
+                    if not x.startswith('@') ]
+
+        return None
+
+    def get_users(self, server, channel):
+        if server in self._server_list and \
+           channel in self._server_list[server]:
+            return self._server_list[server][channel].get_users()
+
+        return None
+
     def handle_signals(self, signal, func=None):
         if(signal == 15):
             s = "SIGTERM"
@@ -423,29 +509,15 @@ class Bot(object):
         if is_public:
             destination = event.target
         else:
-            destination = event.source.split("!")[0]
-        # Even though RFC has message limit 400 bytes, many servers
-        # have their own limit. Thus setting it to 400 characters.
-        buffer_max = (400 - len(destination) - 12)
-        msg_len = len(message.encode("utf-8"))
+            destination = event.source.nick
 
-        if msg_len >= buffer_max:
-            data = utils.split_utf8(message.encode("utf-8"), buffer_max)
+        self._send_message(connection, destination, message)
 
-            for i in data:
-                try:
-                    connection.privmsg(destination, i.decode("utf-8"))
-                    print("> Sending split output to {}: {}"
-                            .format(destination, i.decode("utf-8")))
-                except Exception as e:
-                    print("Exception {0}".format(str(e)))
-        else:
-            try:
-                connection.privmsg(destination, message)
-                print("> Sending output to {}: {}"
-                        .format(destination, message))
-            except Exception as e:
-                print("Exception {}" .format(str(e)))
+    def send_msg2(self, server, channel, message):
+        if server in self._server_list and \
+            channel in self._server_list[server]:
+                self._send_message(self._server_list[server]["@@s"], channel,
+                                        message)
 
     def send_delayed(self, server, channel, message, delay):
         if not server or not channel or not message or delay <= 0:
