@@ -52,7 +52,7 @@ class Remind(module_base.ModuleBase):
         conn.row_factory = sqlite3.Row
         cread = conn.cursor()
         cwrite = conn.cursor()
-        cwrite.execute("CREATE TABLE IF NOT EXISTS reminders("
+        cwrite.execute("CREATE TABLE IF NOT EXISTS mod_remind("
                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     "server DATA NOT NULL,"
                     "channel DATA NOT NULL,"
@@ -60,10 +60,10 @@ class Remind(module_base.ModuleBase):
                     "delay INTEGER NOT NULL);")
 
         dtnow = datetime.now()
-        cread.execute("SELECT * FROM reminders")
+        cread.execute("SELECT * FROM mod_remind")
         for row in cread:
             if int(row["delay"]) < int(dtnow.timestamp()):
-                cwrite.execute("DELETE FROM reminders WHERE id = ?",
+                cwrite.execute("DELETE FROM mod_remind WHERE id = ?",
                                 (row["id"],))
             else:
                 print("Adding reminder into queue: {}".format(row["message"]))
@@ -138,7 +138,7 @@ class Remind(module_base.ModuleBase):
         # Save reminder into DB
         conn = sqlite3.connect(self._db_name)
         c = conn.cursor()
-        c.execute("INSERT INTO reminders(server, channel, message, delay)"
+        c.execute("INSERT INTO mod_remind(server, channel, message, delay)"
                   "VALUES(?, ?, ?, ?)", (server, channel, message, int(delay)))
         conn.commit()
         conn.close()

@@ -39,7 +39,7 @@ class Tell(module_base.ModuleBase):
             cread = conn.cursor()
             cwrite = conn.cursor()
 
-            cwrite.execute("CREATE TABLE IF NOT EXISTS tell_messages("
+            cwrite.execute("CREATE TABLE IF NOT EXISTS mod_tell("
                         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                         "server DATA NOT NULL,"
                         "channel DATA NOT NULL,"
@@ -47,7 +47,7 @@ class Tell(module_base.ModuleBase):
                         "message DATA NOT NULL,"
                         "sender DATA NOT NULL,"
                         "timestamp INTEGER NOT NULL)")
-            cread.execute("SELECT * FROM tell_messages "
+            cread.execute("SELECT * FROM mod_tell "
                           "WHERE server = ?"
                           "  AND user = ?",
                           (server, user))
@@ -59,7 +59,7 @@ class Tell(module_base.ModuleBase):
                         b.send_msg2(server, channel, message.format(row["user"],
                                     row["message"], row["sender"],
                                     dt.strftime("%d.%m.%y %H:%M:%S")))
-                        cwrite.execute("DELETE FROM tell_messages WHERE id = ?",
+                        cwrite.execute("DELETE FROM mod_tell WHERE id = ?",
                                         (row["id"],))
                 else:
                     # NICKS
@@ -70,7 +70,7 @@ class Tell(module_base.ModuleBase):
                             b.send_msg2(server, ch, message.format(row["user"],
                                         row["message"], row["sender"],
                                         dt.strftime("%d.%m.%y %H:%M:%S")))
-                            cwrite.execute("DELETE FROM tell_messages "
+                            cwrite.execute("DELETE FROM mod_tell "
                                             "WHERE id = ?", (row["id"],))
             conn.commit()
             conn.close()
@@ -88,7 +88,7 @@ class Tell(module_base.ModuleBase):
         try:
             conn = sqlite3.connect(db_name)
             c = conn.cursor()
-            c.execute("INSERT INTO tell_messages(server, channel, user, "
+            c.execute("INSERT INTO mod_tell(server, channel, user, "
                         "message, sender, timestamp) VALUES(?, ?, ?, ?, ?, ?)",
                         (connection.server, event.target, user, message,
                             event.source, ts))
