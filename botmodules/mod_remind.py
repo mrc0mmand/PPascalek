@@ -29,7 +29,7 @@ class Remind(module_base.ModuleBase):
                                         "(\:(?P<second>[0-9]{1,2}))?$")
         # Get database name from global settings
         gs = self.get_global_settings(self._settings)
-        if gs is None or "db_name" not in gs:
+        if gs is None or "db_name" not in gs or not gs["db_name"]:
             raise KeyError("Mising 'db_name' in mod_remind's global "
                            "settings section")
         # Load saved reminders

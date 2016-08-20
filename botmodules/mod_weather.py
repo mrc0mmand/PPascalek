@@ -16,7 +16,7 @@ class Weather(module_base.ModuleBase):
         self._forecast_cmds = ["weather-forecast", "wf"]
         self._help = "Usage: {}{} location"
         gs = self.get_global_settings(self._settings)
-        if gs is None or "api_key" not in gs:
+        if gs is None or "api_key" not in gs or not gs["api_key"]:
             raise KeyError("Mising 'api_key' in mod_weather's global "
                            "settings section")
         self._api_key = gs["api_key"]

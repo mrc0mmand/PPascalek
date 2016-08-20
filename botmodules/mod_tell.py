@@ -16,10 +16,10 @@ class Tell(module_base.ModuleBase):
 
     def _get_db_name(self, connection, event):
         s = self.get_curr_settings(connection, event, True, self._settings)
-        if s is not None and "db_name" in s:
+        if s is not None and "db_name" in s and s["db_name"]:
             return s["db_name"]
         s = self.get_global_settings(self._settings)
-        if s is not None and "db_name" in s:
+        if s is not None and "db_name" in s and s["db_name"]:
             return s["db_name"]
 
         return None
