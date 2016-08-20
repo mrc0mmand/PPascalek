@@ -21,6 +21,16 @@ class Weather(module_base.ModuleBase):
                            "settings section")
         self._api_key = gs["api_key"]
 
+    def _get_default_location(self, connection, event, is_public):
+        s = self.get_curr_settings(connection, event, is_public, self._settings)
+        if s is not None and "default_loc" in s and s["default_loc"]:
+            return s["default_loc"]
+        s = self.get_global_settings(self._settings)
+        if s is not None and "default_loc" in s and s["default_loc"]:
+            return s["default_loc"]
+
+        return None
+
     def _get_location_data(self, location):
         url = "https://autocomplete.wunderground.com/aq?query={}"
         normalized = utils.strip_accents(location)
@@ -101,6 +111,9 @@ class Weather(module_base.ModuleBase):
     def on_command(self, b, module_data, connection, event, is_public):
         location = event.arguments[0].strip()
         cmd = module_data["command"]
+
+        if not location:
+            location = self._get_default_location(connection, event, is_public)
 
         if location:
             if cmd in self._weather_cmds:
