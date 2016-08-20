@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import unicodedata
+
 def get_class_name(mod_name):
     class_name = ""
 
@@ -22,3 +24,7 @@ def split_utf8(string, length):
         yield string[:index]
         string = string[index:]
     yield string
+
+def strip_accents(string):
+    return ''.join(c for c in unicodedata.normalize('NFD', string)
+                        if unicodedata.category(c) != 'Mn')
