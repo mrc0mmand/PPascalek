@@ -1,4 +1,19 @@
 {
+    "mod_settings" : [
+        {
+            "name" : "mod_remind",
+            "db_name" : "database.db3"
+        },
+        {
+            "name" : "mod_tell",
+            "db_name" : "database.db3"
+        },
+        {
+            "name" : "mod_weather",
+            "api_key" : "<wunderground-api-key>"
+        }
+    ],
+
     "servers": [
         {
             "nickname" : "yournick",
@@ -7,7 +22,7 @@
             "cmdprefix" : "?",
 
             "channels" : [
-                { 
+                {
                     "name" : "#channel1",
                     "pass" : "",
                     "cmdprefix" : "!"
@@ -20,7 +35,7 @@
                     "mod_settings" : [
                         {
                             "name" : "first_module",
-                            "database" : "channel2.db"
+                            "option" : "some option"
                         }
                     ]
                 }
@@ -28,8 +43,8 @@
 
             "mod_settings" : [
                 {
-                    "name" : "first_module",
-                    "database" : "module.db"
+                    "name" : "mod_weather",
+                    "default_loc" : "Brno"
                 }
             ]
         }
