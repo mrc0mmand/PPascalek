@@ -33,6 +33,7 @@ class Tell(module_base.ModuleBase):
 
         server = connection.server
         message = "{}: {} (by {} on {})"
+        quser = user.lower()
         try:
             conn = sqlite3.connect(db_name)
             conn.row_factory = sqlite3.Row
@@ -50,13 +51,13 @@ class Tell(module_base.ModuleBase):
             cread.execute("SELECT * FROM mod_tell "
                           "WHERE server = ?"
                           "  AND user = ?",
-                          (server, user))
+                          (server, quser))
             for row in cread:
                 # JOIN
                 if channel is not None:
                     if channel == row["channel"]:
                         dt = datetime.fromtimestamp(row["timestamp"])
-                        b.send_msg2(server, channel, message.format(row["user"],
+                        b.send_msg2(server, channel, message.format(user,
                                     row["message"], row["sender"],
                                     dt.strftime("%d.%m.%y %H:%M:%S")))
                         cwrite.execute("DELETE FROM mod_tell WHERE id = ?",
@@ -67,7 +68,7 @@ class Tell(module_base.ModuleBase):
                         if ch == row["channel"] and \
                            user in b.get_users(server, ch):
                             dt = datetime.fromtimestamp(row["timestamp"])
-                            b.send_msg2(server, ch, message.format(row["user"],
+                            b.send_msg2(server, ch, message.format(user,
                                         row["message"], row["sender"],
                                         dt.strftime("%d.%m.%y %H:%M:%S")))
                             cwrite.execute("DELETE FROM mod_tell "
@@ -85,6 +86,7 @@ class Tell(module_base.ModuleBase):
             return False
 
         ts = int(datetime.now().timestamp())
+        user = user.lower()
         try:
             conn = sqlite3.connect(db_name)
             c = conn.cursor()
