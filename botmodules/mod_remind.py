@@ -5,28 +5,38 @@ import re
 import sys
 import sqlite3
 from . import module_base
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 class Remind(module_base.ModuleBase):
 
     def __init__(self, b, settings):
         self._settings = settings
-        self._args_regex = re.compile("^[ ]*(\@?[0-9].*?)[ ]*\-[ ]*"
-                                      "(\S.*?)[ ]*$")
-        self._interval_regex = re.compile("^((?P<hr>[0-9]+)\:)?"
-                                          "(?P<min>[0-9]+)"
-                                          "(\:(?P<sec>[0-9]{1,2}))?$")
-        self._named_interval_regex = re.compile("^((?P<w>[0-9]+)(W|w))?[ ]*"
-                                                "((?P<d>[0-9]+)(D|d))?[ ]*"
-                                                "((?P<hr>[0-9]+)(H|h))?[ ]*"
-                                                "((?P<min>[0-9]+)(M|m))?[ ]*"
-                                                "((?P<sec>[0-9]+)(S|s))?$")
-        self._prefix_regex = re.compile("^@((?P<day>[0-9]{1,2})\."
-                                        "(?P<month>[0-9]{1,2})\."
-                                        "(?P<year>[0-9]{4})[ ]+)?"
-                                        "(?P<hour>[0-9]{1,2})\:"
-                                        "(?P<minute>[0-9]{1,2})"
-                                        "(\:(?P<second>[0-9]{1,2}))?$")
+        # Prepare regexes
+        self._interval_regex = re.compile(
+                "^((?P<hr>[0-9]+)\:)?"
+                "(?P<min>[0-9]+)"
+                "(\:(?P<sec>[0-9]{1,2}))?"
+                "[ ]+(?P<data>.+)[ ]*$",
+                re.IGNORECASE)
+        self._named_interval_regex = re.compile(
+                "((?P<w>[0-9]+)(w|weeks?))?[ ]*"
+                "((?P<d>[0-9]+)(d|days?))?[ ]*"
+                "((?P<hr>[0-9]+)(h|hours?))?[ ]*"
+                "((?P<min>[0-9]+)(m|mins?|minutes?))?[ ]*"
+                "((?P<sec>[0-9]+)(s|secs?|seconds?))?"
+                "[ ]+(?P<data>.+)[ ]*$",
+                re.IGNORECASE)
+        self._prefix_regex = re.compile(
+                "@((?P<day>[0-9]{1,2})\."
+                "(?P<month>[0-9]{1,2})\."
+                "(?P<year>[0-9]{4})[ ]+)?"
+                "(?P<hour>[0-9]{1,2})\:"
+                "(?P<minute>[0-9]{1,2})"
+                "(\:(?P<second>[0-9]{1,2}))?"
+                "[ ]+(?P<data>.+)[ ]*$",
+                re.IGNORECASE)
+        # Peform several self tests
+        self._time_tests()
         # Get database name from global settings
         gs = self.get_global_settings(self._settings)
         if gs is None or "db_name" not in gs or not gs["db_name"]:
@@ -84,17 +94,19 @@ class Remind(module_base.ModuleBase):
                 # Set default values for missing one and
                 # convert existing ones to int
                 for key, value in r.items():
+                    if key == "data":
+                        continue
                     if value is None:
                         r[key] = getattr(dt, key)
                     else:
                         r[key] = int(value)
 
                 try:
-                    return datetime(r["year"], r["month"], r["day"], r["hour"],
-                                    r["minute"], r["second"])
+                    return (datetime(r["year"], r["month"], r["day"],
+                                     r["hour"], r["minute"], r["second"]),
+                                     r["data"])
                 except Exception as e:
-                    return None
-
+                    return (None, None)
         else:
             # Time interval
             m = re.search(self._interval_regex, data)
@@ -104,6 +116,8 @@ class Remind(module_base.ModuleBase):
                 r = m.groupdict()
                 # Set 0 as default value and convert existing values to int
                 for key, value in r.items():
+                    if key == "data":
+                        continue
                     if value is None:
                         r[key] = 0
                     else:
@@ -117,13 +131,13 @@ class Remind(module_base.ModuleBase):
                     td = timedelta(weeks=r["w"], days=r["d"], hours=r["hr"],
                                    minutes=r["min"], seconds=r["sec"])
                     if td == 0:
-                        return None
+                        return (None, None)
                     else:
-                        return dt + td
+                        return (dt + td, r["data"])
                 except Exception as e:
-                    return None
+                    return (None, None)
 
-        return None
+        return (None, None)
 
     def _process_time(self, data):
         dt = self._parse_time(data)
@@ -145,6 +159,36 @@ class Remind(module_base.ModuleBase):
         # Add reminder into global timer
         b.send_delayed(server, channel, message, delay)
 
+    def _time_tests(self):
+        message = "Test message"
+        dt = datetime.now() + timedelta(weeks=25)
+        tests = [
+            ["10s",                 timedelta(seconds=10)],
+            ["1w1d",                timedelta(weeks=1, days=1)],
+            ["1w1d1h1m1s",          timedelta(weeks=1, days=1, hours=1,
+                                              minutes=1, seconds=1)],
+            ["11:10",               timedelta(hours=11, minutes=10)],
+            ["@23:59:59",           time(23, 59, 59)],
+            ["@"+dt.strftime("%d.%m.%Y %H:%M:%S"),  timedelta(weeks=25)],
+            ["@"+dt.strftime("%d.%m.%Y %H:%M"),     timedelta(weeks=25)],
+        ]
+
+        for test in tests:
+            origin = datetime.now()
+            if isinstance(test[1], timedelta):
+                origin += test[1]
+            elif isinstance(test[1], time):
+                origin = datetime.combine(origin, test[1])
+            else:
+                origin = test[1]
+
+            parsed, pmsg = self._parse_time("{} {}".format(test[0], message))
+            if parsed is None or pmsg is None or \
+               int(origin.timestamp()) != int(parsed.timestamp()) or \
+               message != pmsg:
+                raise Exception("[Remind][ERROR] Test failed for format '{}'"
+                        .format(test[0]))
+
     def get_commands(self):
         return ["remind"]
 
@@ -154,14 +198,13 @@ class Remind(module_base.ModuleBase):
                         "Can be used only in public chat")
             return
 
-        m = re.search(self._args_regex, event.arguments[0])
+        dt, data = self._parse_time(event.arguments[0])
         user = event.source.split('!', 1)[0]
 
-        if m:
-            dt = self._process_time(m.group(1))
+        if data is not None:
             if dt is not None:
                 self._save_reminder(b, connection.server, event.target,
-                            user + ": " + m.group(2), dt.timestamp())
+                            user + ": " + data, dt.timestamp())
                 b.send_msg(connection, event, is_public, "{}: Saved! "
                     "Reminder time: {}".format(user,
                                             dt.strftime("%d.%m.%y %H:%M:%S")))
@@ -173,6 +216,6 @@ class Remind(module_base.ModuleBase):
                     .format(user))
 
     def on_help(self, b, module_data, connection, event, is_public):
-        b.send_msg(connection, event, is_public, "{}{} <format> - message "
+        b.send_msg(connection, event, is_public, "{}{} <format> message "
                 "(format: HH:MM:SS or 1w1d1h1m1s or @10:30 or @1.1.1970 10:10)"
                 .format(module_data["prefix"], module_data["command"]))
