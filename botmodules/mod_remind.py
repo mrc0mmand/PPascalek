@@ -19,7 +19,7 @@ class Remind(module_base.ModuleBase):
                 "[ ]+(?P<data>.+)[ ]*$",
                 re.IGNORECASE)
         self._named_interval_regex = re.compile(
-                "((?P<w>[0-9]+)(w|weeks?))?[ ]*"
+                "^((?P<w>[0-9]+)(w|weeks?))?[ ]*"
                 "((?P<d>[0-9]+)(d|days?))?[ ]*"
                 "((?P<hr>[0-9]+)(h|hours?))?[ ]*"
                 "((?P<min>[0-9]+)(m|mins?|minutes?))?[ ]*"
