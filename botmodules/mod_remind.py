@@ -27,7 +27,7 @@ class Remind(module_base.ModuleBase):
                 "[ ]+(?P<data>.+)[ ]*$",
                 re.IGNORECASE)
         self._prefix_regex = re.compile(
-                "@((?P<day>[0-9]{1,2})\."
+                "^@((?P<day>[0-9]{1,2})\."
                 "(?P<month>[0-9]{1,2})\."
                 "(?P<year>[0-9]{4})[ ]+)?"
                 "(?P<hour>[0-9]{1,2})\:"
