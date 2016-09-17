@@ -19,11 +19,11 @@ class Remind(module_base.ModuleBase):
                 "[ ]+(?P<data>.+)[ ]*$",
                 re.IGNORECASE)
         self._named_interval_regex = re.compile(
-                "^((?P<w>[0-9]+)(w|weeks?))?[ ]*"
-                "((?P<d>[0-9]+)(d|days?))?[ ]*"
-                "((?P<hr>[0-9]+)(h|hours?))?[ ]*"
-                "((?P<min>[0-9]+)(m|mins?|minutes?))?[ ]*"
-                "((?P<sec>[0-9]+)(s|secs?|seconds?))?"
+                "^((?P<w>[0-9]+)[ ]*(w|weeks?))?[ ]*"
+                "((?P<d>[0-9]+)[ ]*(d|days?))?[ ]*"
+                "((?P<hr>[0-9]+)[ ]*(h|hours?))?[ ]*"
+                "((?P<min>[0-9]+)[ ]*(m|mins?|minutes?))?[ ]*"
+                "((?P<sec>[0-9]+)[ ]*(s|secs?|seconds?))?"
                 "[ ]+(?P<data>.+)[ ]*$",
                 re.IGNORECASE)
         self._prefix_regex = re.compile(
@@ -109,8 +109,8 @@ class Remind(module_base.ModuleBase):
                     return (None, None)
         else:
             # Time interval
-            m = re.search(self._interval_regex, data)
-            if not m: m = re.search(self._named_interval_regex, data)
+            m = re.search(self._named_interval_regex, data)
+            if not m: m = re.search(self._interval_regex, data)
 
             if m:
                 r = m.groupdict()
@@ -164,7 +164,11 @@ class Remind(module_base.ModuleBase):
         dt = datetime.now() + timedelta(weeks=25)
         tests = [
             ["10s",                 timedelta(seconds=10)],
+            ["10 s",                timedelta(seconds=10)],
             ["1w1d",                timedelta(weeks=1, days=1)],
+            ["2 weeks 6day",        timedelta(weeks=2, days=6)],
+            ["3 weeks 6days 1m",    timedelta(weeks=3, days=6, minutes=1)],
+            ["5weeks2days4m",       timedelta(weeks=5, days=2, minutes=4)],
             ["1w1d1h1m1s",          timedelta(weeks=1, days=1, hours=1,
                                               minutes=1, seconds=1)],
             ["11:10",               timedelta(hours=11, minutes=10)],
@@ -188,6 +192,8 @@ class Remind(module_base.ModuleBase):
                message != pmsg:
                 raise Exception("[Remind][ERROR] Test failed for format '{}'"
                         .format(test[0]))
+
+        print("[Remind] All self-tests passed")
 
     def get_commands(self):
         return ["remind"]
@@ -217,5 +223,7 @@ class Remind(module_base.ModuleBase):
 
     def on_help(self, b, module_data, connection, event, is_public):
         b.send_msg(connection, event, is_public, "{}{} <format> message "
-                "(format: HH:MM:SS or 1w1d1h1m1s or @10:30 or @1.1.1970 10:10)"
+                "(format: HH:MM:SS or "
+                "1(w|weeks?)1(d|days?)1(h|hours?)1(m|minutes?)1(s|seconds?) "
+                "or @10:30 or @1.1.1970 10:10)"
                 .format(module_data["prefix"], module_data["command"]))
