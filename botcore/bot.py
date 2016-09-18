@@ -234,13 +234,9 @@ class Bot(object):
         print("[{}] Disconnected from {}" .format(event.type.upper(),
                 event.source))
 
-        #if self._exit_signal == False:
-        #    # We got disconnected from the server (timeout, etc.)
-        #    #self._server_list[event.source.lower()]["@@s"].reconnect()
-        #    sys.exit(0)
-        #else:
-        #    # Got exit signal
-        #    sys.exit(0)
+        if self._exit_signal == False:
+            # We got disconnected from the server (timeout, etc.)
+            self._server_list[event.source.lower()]["@@s"].reconnect()
 
     def _on_nicknameinuse(self, connection, event):
         if(self._nick_change_counter == 3):
