@@ -356,7 +356,6 @@ class Bot(object):
         self._handle_quit(connection, event)
 
     def _on_namreply(self, connection, event):
-        # TODO: Keep user lists updated (JOIN/PART/QUIT/NICK)
         ch_type, channel, users = event.arguments
         if channel not in self._server_list[connection.server]:
             print("[ERROR] Got NAMES response for unknown channel '{}'"
