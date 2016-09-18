@@ -97,7 +97,10 @@ class Remind(module_base.ModuleBase):
                     if key == "data":
                         continue
                     if value is None:
-                        r[key] = getattr(dt, key)
+                        if key == "second":
+                            r[key] = 0
+                        else:
+                            r[key] = getattr(dt, key)
                     else:
                         r[key] = int(value)
 
@@ -174,7 +177,7 @@ class Remind(module_base.ModuleBase):
             ["11:10",               timedelta(hours=11, minutes=10)],
             ["@23:59:59",           time(23, 59, 59)],
             ["@"+dt.strftime("%d.%m.%Y %H:%M:%S"),  timedelta(weeks=25)],
-            ["@"+dt.strftime("%d.%m.%Y %H:%M"),     timedelta(weeks=25)],
+            ["@"+dt.strftime("%d.%m.%Y %H:%M"),     dt.replace(second=0)]
         ]
 
         for test in tests:
@@ -190,8 +193,10 @@ class Remind(module_base.ModuleBase):
             if parsed is None or pmsg is None or \
                int(origin.timestamp()) != int(parsed.timestamp()) or \
                message != pmsg:
-                raise Exception("[Remind][ERROR] Test failed for format '{}'"
-                        .format(test[0]))
+                raise Exception("[Remind][ERROR] Test failed for format '{}'\n"
+                        "[Remind] Expected:\t{}\n"
+                        "[Remind] Parsed:\t{}"
+                        .format(test[0], origin, parsed))
 
         print("[Remind] All self-tests passed")
 
