@@ -457,6 +457,7 @@ class Bot(object):
         self._server_list[address]["@@s"] = self._client.server()
 
         try:
+            self._server_list[address]["@@s"].set_rate_limit(8)
             self._server_list[address]["@@s"].connect(address, port, nickname,
                     None, nickname, nickname)
         except client.ServerConnectionError as e:
