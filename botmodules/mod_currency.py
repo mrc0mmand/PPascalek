@@ -76,20 +76,23 @@ class Currency(module_base.ModuleBase):
         return 0
 
     def _get_curr_CNB(self):
-        try:
-            req = urllib.request.urlopen("http://www.cnb.cz/cs/financni_trhy/"
-                                         "devizovy_trh/kurzy_devizoveho_trhu/"
-                                         "denni_kurz.txt", None, 5)
-        except Exception as e:
-            print("[Currency] Couldn't fetch currency rates from CNB {}"
-                    .format(e), file=sys.stderr)
-            return 1
+        core_url = "https://www.cnb.cz/cs/financni_trhy/devizovy_trh/{}"
+        parts = [ "kurzy_devizoveho_trhu/denni_kurz.txt",
+                  "kurzy_ostatnich_men/kurzy.txt" ]
 
-        for line in req:
-            m = re.search(self._CNB_regex, str(line))
-            if m:
-                self._currency_data[m.group(2)] = dict(amount=int(m.group(1)),
-                        rate=float(m.group(3).replace(',', '.')))
+        for part in parts:
+            try:
+                req = urllib.request.urlopen(core_url.format(part), None, 5)
+            except Exception as e:
+                print("[Currency] Couldn't fetch currency rates from CNB {}"
+                        .format(e), file=sys.stderr)
+                return 1
+
+            for line in req:
+                m = re.search(self._CNB_regex, str(line))
+                if m:
+                    self._currency_data[m.group(2)] = dict(amount=int(m.group(1)),
+                            rate=float(m.group(3).replace(',', '.')))
 
         return 0
 
@@ -106,8 +109,13 @@ class Currency(module_base.ModuleBase):
 
             if m:
                 source = float(m.group(1).replace(",", "."))
-                converted = self._convert(m.group(2).upper(),
-                        m.group(4).upper(), source)
+                try:
+                    converted = self._convert(m.group(2).upper(),
+                            m.group(4).upper(), source)
+                except KeyError:
+                    b.send_msg(connection, event, is_public,
+                            "Invalid currency code")
+                    return
 
                 b.send_msg(connection, event, is_public, "{:,} {} = {:,} {}"
                               .format(round(source, 4), m.group(2).upper(),
@@ -121,7 +129,7 @@ class Currency(module_base.ModuleBase):
 
         elif module_data["command"] == "curr-list" or \
                  module_data["command"] == "currency-list":
-            curr_list = ", ".join("{!s}".format(key) for (key,val) in
-                    self._currency_data.items())
+            curr_list = ", ".join("{!s}".format(key) for key in
+                    sorted(self._currency_data))
             b.send_msg(connection, event, is_public, curr_list)
 
