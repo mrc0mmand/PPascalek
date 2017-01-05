@@ -51,11 +51,11 @@ class Remind(module_base.ModuleBase):
 
         # Remind time should be in range
         # past < dtnow < dt <= dtnow + 1 year
-        if dt.timestamp() <= dtnow.timestamp() or \
-           dt.timestamp() > dtnow.replace(year=dtnow.year + 1).timestamp():
-            return 1
+        if dt <= dtnow or \
+           dt > dtnow.replace(year=dtnow.year + 10):
+            return False
         else:
-            return 0
+            return True
 
     def _load_db(self, b):
         conn = sqlite3.connect(self._db_name)
@@ -142,15 +142,6 @@ class Remind(module_base.ModuleBase):
 
         return (None, None)
 
-    def _process_time(self, data):
-        dt = self._parse_time(data)
-
-        if dt is not None:
-            if self._check_time(dt) == 0:
-                return dt
-
-        return None
-
     def _save_reminder(self, b, server, channel, message, delay):
         # Save reminder into DB
         conn = sqlite3.connect(self._db_name)
@@ -213,15 +204,15 @@ class Remind(module_base.ModuleBase):
         user = event.source.split('!', 1)[0]
 
         if data is not None:
-            if dt is not None:
+            if dt is not None and self._check_time(dt):
                 self._save_reminder(b, connection.server, event.target,
                             user + ": " + data, dt.timestamp())
                 b.send_msg(connection, event, is_public, "{}: Saved! "
                     "Reminder time: {}".format(user,
-                                            dt.strftime("%d.%m.%y %H:%M:%S")))
+                                            dt.strftime("%d.%m.%Y %H:%M:%S")))
             else:
                 b.send_msg(connection, event, is_public, "{}: Invalid "
-                    "date/time (0 < time < 1 year) or format".format(user))
+                    "date/time (0 < time < 10 years) or format".format(user))
         else:
             b.send_msg(connection, event, is_public, "{}: Invalid format"
                     .format(user))
