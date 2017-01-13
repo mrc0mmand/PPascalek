@@ -214,8 +214,7 @@ class Remind(module_base.ModuleBase):
                 b.send_msg(connection, event, is_public, "{}: Invalid "
                     "date/time (0 < time < 10 years) or format".format(user))
         else:
-            b.send_msg(connection, event, is_public, "{}: Invalid format"
-                    .format(user))
+            self.on_help(b, module_data, connection, event, is_public)
 
     def on_help(self, b, module_data, connection, event, is_public):
         b.send_msg(connection, event, is_public, "{}{} <format> message "
