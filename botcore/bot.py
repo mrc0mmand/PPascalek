@@ -150,7 +150,7 @@ class Bot(object):
             cparser = config_parser.ConfigParser(self._config_file)
         except:
             print("Unable to continue, quitting... ", file=sys.stderr)
-            sys.exit(1)
+            os._exit(1)
 
         servers = cparser.get_servers()
         for server in servers:
