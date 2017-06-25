@@ -154,11 +154,12 @@ class Bot(object):
 
         servers = cparser.get_servers()
         for server in servers:
+            tag = cparser.get_server_tag(server)
             nickname = cparser.get_server_nickname(server)
             serveraddr = cparser.get_server_address(server).lower()
             port = cparser.get_server_port(server)
             scmdprefix = cparser.get_server_cmdprefix(server)
-            self.add_server(serveraddr, port, nickname, scmdprefix)
+            self.add_server(tag, serveraddr, port, nickname, scmdprefix)
 
             channels = cparser.get_server_channels(server)
             for chan in channels:
@@ -222,7 +223,8 @@ class Bot(object):
             self._load_module(mod_name)
 
     def _on_connect(self, connection, event):
-        print("[{}] Connected to {}" .format(event.type.upper(), event.source))
+        print("[{}] Connected to {} [{}]".format(event.type.upper(),
+            event.source, self.get_server_tag(event.source.lower())))
         for server in self._server_list:
             for channel in self._server_list[server]:
                 if not channel.startswith("@"):
@@ -452,7 +454,7 @@ class Bot(object):
         self._timer = threading.Timer(1, self._timer_process)
         self._timer.start()
 
-    def add_server(self, address, port, nickname, scmdprefix):
+    def add_server(self, tag, address, port, nickname, scmdprefix):
         self._server_list[address] = dict()
         self._server_list[address]["@@s"] = self._client.server()
 
@@ -465,6 +467,7 @@ class Bot(object):
             self._server_list[address]["@@s"].reconnect()
 
         self._server_list[address]["@@s_cmdprefix"] = scmdprefix
+        self._server_list[address]["@@s_tag"] = tag
 
     def get_channels(self, server):
         if server in self._server_list:
@@ -472,6 +475,9 @@ class Bot(object):
                     if not x.startswith('@') ]
 
         return None
+
+    def get_server_tag(self, address):
+        return self._server_list[address]["@@s_tag"]
 
     def get_users(self, server, channel):
         if server in self._server_list and \

@@ -16,6 +16,7 @@
 
     "servers": [
         {
+            "tag" : "servertag",
             "nickname" : "yournick",
             "address" : "irc.domain.tld",
             "port" : 6667,
