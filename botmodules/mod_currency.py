@@ -107,7 +107,7 @@ class Currency(module_base.ModuleBase):
         return 0
 
     def get_commands(self):
-        return ["curr", "currency", "currency-list", "curr-list"]
+        return ["cur", "curr", "currency", "currency-list", "curr-list"]
 
     def on_command(self, b, module_data, connection, event, is_public):
         if time.time() - self._last_update >= 1800:
