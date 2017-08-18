@@ -107,14 +107,13 @@ class Currency(module_base.ModuleBase):
         return 0
 
     def get_commands(self):
-        return ["cur", "curr", "currency", "currency-list", "curr-list"]
+        return ["cur", "curr", "currency", "cur-list", "curr-list", "currency-list"]
 
     def on_command(self, b, module_data, connection, event, is_public):
         if time.time() - self._last_update >= 1800:
             self._do_update()
 
-        if module_data["command"] == "curr" or \
-                module_data["command"] == "currency":
+        if module_data["command"] in ["cur", "curr", "currency"]:
             m = re.search(self._args_regex, event.arguments[0])
 
             if m:
@@ -137,8 +136,7 @@ class Currency(module_base.ModuleBase):
                               .format(module_data["prefix"],
                                   module_data["command"]))
 
-        elif module_data["command"] == "curr-list" or \
-                 module_data["command"] == "currency-list":
+        elif module_data["command"].endswith("-list"):
             curr_list = ", ".join("{!s}".format(key) for key in
                     sorted(self._currency_data))
             b.send_msg(connection, event, is_public, curr_list)
