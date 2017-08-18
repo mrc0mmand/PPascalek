@@ -43,35 +43,45 @@ class Currency(module_base.ModuleBase):
 
         rc = 0
         rc += self._get_curr_CNB()
-        rc += self._get_curr_BTC()
+        rc += self._get_curr_Kraken()
 
         if rc != 0:
             self._last_update -= 1800
         else:
             self._last_update = time.time()
 
-    def _get_curr_BTC(self):
+    def _get_curr_Kraken(self):
         if not self._currency_data["USD"]:
-            print("[Currency] Can't fetch currency rate for BTC - "
+            print("[Currency] Can't fetch currency rates from Kraken - "
                   "missing USD rate.", file=sys.stderr)
             return 1
 
+        core_url = "https://api.kraken.com/0/public/Ticker?pair={}"
+        pairs = {
+            "BCH" : "BCHUSD",
+            "BTC" : "XXBTZUSD",
+            "ETH" : "XETHZUSD",
+            "LTC" : "XLTCZUSD"
+        }
+
         try:
-            req = urllib.request.urlopen("http://blockchain.info/ticker",
-                    None, 5)
-            content = json.loads(req.read().decode("utf-8"))
+            url = core_url.format(",".join(pairs.values()))
+            req = urllib.request.urlopen(url, None, 5)
+            content = json.loads(req.read().decode("utf-8"))["result"]
         except Exception as e:
-            print("[Currency] Couldn't fetch currency rate for BTC: {}"
+            print("[Currency] Couldn't fetch currency rates from Kraken: {}"
                     .format(e), file=sys.stderr)
             return 1
 
-        if content["USD"] and content["USD"]["15m"]:
-            self._currency_data["BTC"] = dict(rate=(content["USD"]["15m"] *
-                self._currency_data["USD"]["rate"]), amount=1)
-        else:
-            print("[Currency] Couldn't fetch currency rate for BTC - "
-                  "probably changed JSON format?", file=sys.stderr)
-            return 1
+        for key, value in pairs.items():
+            try:
+                # c: last closed trade
+                last_rate = float(content[value]["c"][0])
+                self._currency_data[key] = dict(rate=(last_rate *
+                    self._currency_data["USD"]["rate"]), amount=1)
+            except Exception as e:
+                print("[Currency] Couldn't fetch rate for {} ({}): {}"
+                        .format(key, value, e), file=sys.stderr)
 
         return 0
 
