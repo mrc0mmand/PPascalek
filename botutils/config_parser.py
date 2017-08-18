@@ -27,9 +27,6 @@ class ConfigParser(object):
             raise ValueError("Missing 'servers' section in the config file.")
 
         for server in self._content["servers"]:
-            if "tag" not in server:
-                raise ValueError("Missing 'tag' attribute in 'servers' "
-                                 "section.")
             if "nickname" not in server:
                 raise ValueError("Missing 'nickname' attribute in 'servers' "
                                  "section.")
@@ -47,9 +44,6 @@ class ConfigParser(object):
 
     def get_servers(self):
         return self._content["servers"]
-
-    def get_server_tag(self, server):
-        return server["tag"]
 
     def get_server_nickname(self, server):
         return server["nickname"]
