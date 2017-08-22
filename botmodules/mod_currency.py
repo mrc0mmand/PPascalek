@@ -76,13 +76,13 @@ class Currency(module_base.ModuleBase):
 
         for key, value in pairs.items():
             try:
+                # c: last closed trade
                 last_rate = float(content[value]["c"][0])
 
                 if key == "XDG":
                     self._currency_data[key] = dict(rate=(last_rate *
                         self._currency_data["BTC"]["rate"]), amount=1)
                 else:
-                    # c: last closed trade
                     self._currency_data[key] = dict(rate=(last_rate *
                         self._currency_data["USD"]["rate"]), amount=1)
             except Exception as e:
