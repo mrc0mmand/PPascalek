@@ -51,7 +51,7 @@ class Currency(module_base.ModuleBase):
             self._last_update = time.time()
 
     def _get_curr_Kraken(self):
-        if not self._currency_data["USD"]:
+        if not "USD" in self._currency_data:
             print("[Currency] Can't fetch currency rates from Kraken - "
                   "missing USD rate.", file=sys.stderr)
             return 1
@@ -61,7 +61,8 @@ class Currency(module_base.ModuleBase):
             "BCH" : "BCHUSD",
             "BTC" : "XXBTZUSD",
             "ETH" : "XETHZUSD",
-            "LTC" : "XLTCZUSD"
+            "LTC" : "XLTCZUSD",
+            "XDG" : "XXDGXXBT"
         }
 
         try:
@@ -75,13 +76,19 @@ class Currency(module_base.ModuleBase):
 
         for key, value in pairs.items():
             try:
-                # c: last closed trade
                 last_rate = float(content[value]["c"][0])
-                self._currency_data[key] = dict(rate=(last_rate *
-                    self._currency_data["USD"]["rate"]), amount=1)
+
+                if key == "XDG":
+                    self._currency_data[key] = dict(rate=(last_rate *
+                        self._currency_data["BTC"]["rate"]), amount=1)
+                else:
+                    # c: last closed trade
+                    self._currency_data[key] = dict(rate=(last_rate *
+                        self._currency_data["USD"]["rate"]), amount=1)
             except Exception as e:
                 print("[Currency] Couldn't fetch rate for {} ({}): {}"
                         .format(key, value, e), file=sys.stderr)
+                return 1
 
         return 0
 
