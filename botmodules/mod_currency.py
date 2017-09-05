@@ -8,6 +8,7 @@ import json
 import time
 import urllib.request
 from . import module_base
+from collections import OrderedDict
 
 class Currency(module_base.ModuleBase):
 
@@ -57,14 +58,14 @@ class Currency(module_base.ModuleBase):
             return 1
 
         core_url = "https://api.kraken.com/0/public/Ticker?pair={}"
-        pairs = {
+        pairs = OrderedDict({
             "BCH" : "BCHUSD",
             "BTC" : "XXBTZUSD",
             "ETH" : "XETHZUSD",
             "LTC" : "XLTCZUSD",
             "XRP" : "XXRPZUSD",
             "XDG" : "XXDGXXBT"
-        }
+        })
 
         try:
             url = core_url.format(",".join(pairs.values()))
