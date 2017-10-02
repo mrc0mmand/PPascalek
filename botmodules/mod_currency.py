@@ -64,6 +64,7 @@ class Currency(module_base.ModuleBase):
             "ETH" : "XETHZUSD",
             "LTC" : "XLTCZUSD",
             "XRP" : "XXRPZUSD",
+            "XMR" : "XXMRZUSD",
             "XDG" : "XXDGXXBT"
         })
 
