@@ -58,15 +58,15 @@ class Currency(module_base.ModuleBase):
             return 1
 
         core_url = "https://api.kraken.com/0/public/Ticker?pair={}"
-        pairs = OrderedDict({
-            "BCH" : "BCHUSD",
-            "BTC" : "XXBTZUSD",
-            "ETH" : "XETHZUSD",
-            "LTC" : "XLTCZUSD",
-            "XRP" : "XXRPZUSD",
-            "XMR" : "XXMRZUSD",
-            "XDG" : "XXDGXXBT"
-        })
+        pairs = OrderedDict([
+            ("BCH", "BCHUSD"),
+            ("BTC", "XXBTZUSD"),
+            ("ETH", "XETHZUSD"),
+            ("LTC", "XLTCZUSD"),
+            ("XRP", "XXRPZUSD"),
+            ("XMR", "XXMRZUSD"),
+            ("XDG", "XXDGXXBT")
+        ])
 
         try:
             url = core_url.format(",".join(pairs.values()))
