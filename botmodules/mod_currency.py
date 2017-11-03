@@ -13,6 +13,8 @@ from collections import OrderedDict
 class Currency(module_base.ModuleBase):
 
     def __init__(self, b, settings):
+        # Rates shouldn't be older than 5 minutes
+        self._rates_expiration = 300
         self._last_update = time.time()
         self._currency_data = dict()
         self._args_regex = re.compile("^[ ]*([0-9]+[\,\.]?[0-9]*)[ ]+"
@@ -48,7 +50,7 @@ class Currency(module_base.ModuleBase):
         rc += self._get_curr_Bitfinex()
 
         if rc != 0:
-            self._last_update -= 1800
+            self._last_update -= self._rates_expiration
         else:
             self._last_update = time.time()
 
@@ -157,7 +159,7 @@ class Currency(module_base.ModuleBase):
         return ["cur", "curr", "currency", "cur-list", "curr-list", "currency-list"]
 
     def on_command(self, b, module_data, connection, event, is_public):
-        if time.time() - self._last_update >= 1800:
+        if time.time() - self._last_update >= self._rates_expiration:
             self._do_update()
 
         if module_data["command"] in ["cur", "curr", "currency"]:
