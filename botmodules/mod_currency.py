@@ -45,6 +45,7 @@ class Currency(module_base.ModuleBase):
         rc = 0
         rc += self._get_curr_CNB()
         rc += self._get_curr_Kraken()
+        rc += self._get_curr_Bitfinex()
 
         if rc != 0:
             self._last_update -= 1800
@@ -88,6 +89,42 @@ class Currency(module_base.ModuleBase):
                 else:
                     self._currency_data[key] = dict(rate=(last_rate *
                         self._currency_data["USD"]["rate"]), amount=1)
+            except Exception as e:
+                print("[Currency] Couldn't fetch rate for {} ({}): {}"
+                        .format(key, value, e), file=sys.stderr)
+                return 1
+
+        return 0
+
+    def _get_curr_Bitfinex(self):
+        if not "USD" in self._currency_data:
+            print("[Currency] Can't fetch currency rates from Bitfinex - "
+                  "missing USD rate.", file=sys.stderr)
+            return 1
+
+        core_url = "https://api.bitfinex.com/v2/tickers/?symbols={}"
+        pairs = OrderedDict([
+            ("OMG", "tOMGUSD"),
+        ])
+
+        try:
+            url = core_url.format(",".join(pairs.values()))
+            req = urllib.request.urlopen(url, None, 5)
+            content = json.loads(req.read().decode("utf-8"))
+        except Exception as e:
+            print("[Currency] Couldn't fetch currency rates from Bitfinex: {}"
+                    .format(e), file=sys.stderr)
+            return 1
+
+        idx = 0
+        for key, value in pairs.items():
+            try:
+                # index 7: last closed trade
+                last_rate = float(content[idx][7])
+
+                self._currency_data[key] = dict(rate=(last_rate *
+                        self._currency_data["USD"]["rate"]), amount=1)
+                idx += 1
             except Exception as e:
                 print("[Currency] Couldn't fetch rate for {} ({}): {}"
                         .format(key, value, e), file=sys.stderr)
